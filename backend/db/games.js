@@ -40,6 +40,106 @@ async function storeInitialState(gameId, hostId, board, deck) {
       await db.none(insertCardQuery, [gameId, card.type, card.isUsed]);
     }
   }
+
+async function joinGame(gameId, playerId){
+  const joinGameQuery = `INSERT INTO current_players (game_id, player_id) VALUES ($1, $2)`;
+  
+  //Check if the game exists
+  const gameExistsQuery = `SELECT * FROM game WHERE game_id = $1`;
+  const gameExists = await db.oneOrNone(gameExistsQuery, [gameId]);
+  if(!gameExists){
+    throw new Error("Game does not exist");
+  }
+  
+  //Check if the player is already in the game
+  const playerExistsQuery = `SELECT * FROM current_players WHERE game_id = $1 AND player_id = $2`;
+  const playerExists = await db.oneOrNone(playerExistsQuery, [gameId, playerId]);
+  if(playerExists){
+    throw new Error("Player is already in the game");
+  }
+  
+  //Check if the game has less than 4 players
+  const playerCountQuery = `SELECT COUNT(*) FROM current_players WHERE game_id = $1`;
+  const playerCount = await db.one(playerCountQuery, [gameId]);
+  if(playerCount.count >= 4){
+    throw new Error("Game is full");
+  }
+  
+  //Add the player to the game
+  await db.none(joinGameQuery, [gameId, playerId]);
+
+}
+
+async function startGame(gameId){
+  const updateGameStatusQuery = `UPDATE game SET game_status = 1 WHERE game_id = $1`;
+
+  //Check if the game exists
+  const gameExistsQuery = `SELECT * FROM game WHERE game_id = $1`;
+  const gameExists = await db.oneOrNone(gameExistsQuery, [gameId]);
+  if(!gameExists){
+    throw new Error("Game does not exist");
+  }
+
+  //Check if the game has at least 2 players
+  const playerCountQuery = `SELECT COUNT(*) FROM current_players WHERE game_id = $1`;
+  const playerCount = await db.one(playerCountQuery, [gameId]);
+  if(playerCount.count < 2){
+    throw new Error("Game does not have enough players");
+  }
+
+  //Check if the game has not already started
+  const gameStatusQuery = `SELECT game_status FROM game WHERE game_id = $1`;
+  const gameStatus = await db.one(gameStatusQuery, [gameId]);
+  if(gameStatus.game_status == 1){
+    throw new Error("Game has already started");
+  }
+
+  //Update the game status to started
+  await db.none(updateGameStatusQuery, [gameId]);
+
+  //Send the initial game state to all players
+
+}
+
+async function getGameState(gameId) {
+  //Get the game and its players from the database
+  const gameQuery = `SELECT * FROM game WHERE game_id = $1`;
+  const game = await db.one(gameQuery, [gameId]);
+  if (!game) {
+    throw new Error("Game does not exist");
+  }
+  const playersQuery = `SELECT * FROM current_players WHERE game_id = $1`;
+  const players = await db.any(playersQuery, [gameId]);
+  
+  //Get the current turn
+  const currentTurn = game.current_turn;
+
+  //Get the pawns from the database and construct the board
+  const pawnsQuery = `SELECT * FROM pawns WHERE current_player_id IN (SELECT current_player_id FROM current_players WHERE game_id = $1)`;
+  const pawns = await db.any(pawnsQuery, [gameId]);
+
+  // Create a map of current_player_id to color
+  const currentPlayerIdToColor = new Map(players.map(player => [player.current_player_id, player.color]));
+
+  const board = new Board();
+  board.initializeFromPawns(pawns, currentPlayerIdToColor);
+
+  // Get the cards from the database and construct the Deck object
+  const cards = await db.any("SELECT * FROM cards WHERE game_id=$1", [gameId]);
+  const deck = new Deck();
+  deck.initializeFromCards(cards);
+
+  // Construct the game state object
+  const gameState = {
+    game_id: gameId,
+    players,
+    board,
+    deck,
+  };
+
+  return gameState;
+  
+}
   
   
   

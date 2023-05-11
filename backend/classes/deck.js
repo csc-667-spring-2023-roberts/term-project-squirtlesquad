@@ -68,6 +68,19 @@ class Deck {
     
         return cards;
     }
+
+    initializeFromCards(cards) {
+      this.drawPile = [];
+      this.discardPile = [];
+    
+      cards.forEach((card) => {
+        if (card.is_used) {
+          this.discardPile.push(card.type);
+        } else {
+          this.drawPile.push(card.type);
+        }
+      });
+    }
   }
   
   module.exports = Deck;

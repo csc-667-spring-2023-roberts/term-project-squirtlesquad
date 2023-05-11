@@ -1,10 +1,10 @@
 class Board {
     constructor() {
-      this.startZones = {// 1 is a pawn, 0 is empty
-        red: [1, 1, 1, 1],
-        blue: [1, 1, 1, 1],
-        green: [1, 1, 1, 1],
-        yellow: [1, 1, 1, 1],
+      this.startZones = {
+        red: ['red', 'red', 'red', 'red'],
+        blue: ['blue', 'blue', 'blue', 'blue'],
+        green: ['green', 'green', 'green', 'green'],
+        yellow: ['yellow', 'yellow', 'yellow', 'yellow'],
       };
       
       this.boardSpaces = new Array(60).fill(null);
@@ -40,6 +40,31 @@ class Board {
       };
     }
 
+    clearBoard(){
+      this.startZones = {
+        red: [null, null, null, null],
+        blue: [null, null, null, null],
+        green: [null, null, null, null],
+        yellow: [null, null, null, null],
+      };
+      
+      this.boardSpaces = new Array(60).fill(null);
+
+      this.safetyZones = {
+        red: [null, null, null, null, null],
+        blue: [null, null, null, null, null],
+        green: [null, null, null, null, null],
+        yellow: [null, null, null, null, null],
+      };
+
+      this.homeZones = {
+        red: [null, null, null, null],
+        blue: [null, null, null, null],
+        green: [null, null, null, null],
+        yellow: [null, null, null, null],
+      };
+    }
+    
     getPawns() {
         const pawns = [];
         const colors = ['red', 'blue', 'green', 'yellow'];
@@ -47,8 +72,8 @@ class Board {
         // Get pawns from startZones
         colors.forEach((color) => {
           this.startZones[color].forEach((pawn, index) => {
-            if (pawn === 1) {
-              pawns.push({ color, zone: 'start', position: index });
+            if (pawn !== null) {
+              pawns.push({ color: pawn, zone: 'start', position: index });
             }
           });
         });
@@ -80,6 +105,33 @@ class Board {
     
         return pawns;
       }
+
+    initializeFromPawns(pawns, currentPlayerIdToColor) {
+        this.clearBoard();
+        
+        //Iterate through pawns and set their positions on the board
+        pawns.forEach((pawn) => {
+          const color = currentPlayerIdToColor.get(pawn.current_player_id);
+          const zone = pawn.zone;
+          const position = pawn.position;
+
+          if (zone === 'start') {
+            this.startZones[color][position] = color;
+          }
+          else if (zone === 'board') {
+            this.boardSpaces[position] = color;
+          }
+          else if (zone === 'safety') {
+            this.safetyZones[color][position] = color;
+          }
+          else if (zone === 'home') {
+            this.homeZones[color][position] = color;
+          }
+          else {
+            throw new Error('Invalid pawn zone');
+          }
+        });
+    }
   }
 
   module.exports = Board;
