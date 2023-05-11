@@ -132,6 +132,7 @@ async function getGameState(gameId) {
   // Construct the game state object
   const gameState = {
     game_id: gameId,
+    currentTurn,
     players,
     board,
     deck,
@@ -139,6 +140,33 @@ async function getGameState(gameId) {
 
   return gameState;
   
+}
+
+async function updateGameState(gameState) {
+  // Update the game table
+  const updateGameQuery = `UPDATE game SET current_turn = $1 WHERE game_id = $2`;
+  await db.none(updateGameQuery, [gameState.currentTurn, gameState.game_id]);
+
+  // Delete the existing pawns in the database
+  const deletePawnsQuery = `DELETE FROM pawns WHERE current_player_id IN (SELECT current_player_id FROM current_players WHERE game_id = $1)`;
+  await db.none(deletePawnsQuery, [gameState.game_id]);
+
+  // Insert updated pawns into the database
+  const insertPawnQuery = 'INSERT INTO pawns (current_player_id, zone, position) VALUES ($1, $2, $3)';
+  for (const pawn of gameState.board.getPawns()) {
+    await db.none(insertPawnQuery, [pawn.currentPlayerId, pawn.zone, pawn.position]);
+  }
+
+  // Delete all cards associated with the game
+  const deleteCardsQuery = `DELETE FROM card WHERE game_id = $1`;
+  await db.none(deleteCardsQuery, [gameState.game_id]);
+
+  // Insert the updated card information
+  const cards = gameState.deck.getCards();
+  for (const card of cards) {
+    const insertCardQuery = 'INSERT INTO card (game_id, card_type, is_used) VALUES ($1, $2, $3)';
+    await db.none(insertCardQuery, [gameState.game_id, card.type, card.isUsed]);
+  }
 }
   
   
