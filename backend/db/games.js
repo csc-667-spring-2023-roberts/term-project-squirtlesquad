@@ -1,6 +1,7 @@
 const db = require("./connection.js");
 const Board = require('./board.js');
 const Deck = require('./deck.js');
+const Rules = require('./rules.js');
 
 async function createNewGame(hostId, gameTitle){
     // Instantiate the Board and Deck objects
@@ -132,6 +133,7 @@ async function getGameState(gameId) {
   // Construct the game state object
   const gameState = {
     game_id: gameId,
+    currentPlayerIdToColor,
     currentTurn,
     players,
     board,
@@ -167,6 +169,51 @@ async function updateGameState(gameState) {
     const insertCardQuery = 'INSERT INTO card (game_id, card_type, is_used) VALUES ($1, $2, $3)';
     await db.none(insertCardQuery, [gameState.game_id, card.type, card.isUsed]);
   }
+}
+
+
+async function movePawn(gameId, currentPlayerId, move) {
+  /* move = {
+    pawn: { color: 'red', position: 4, zone: 'board' },
+    card: '2',
+    destination: { position: 6, zone: 'board' },
+  } */
+  
+  // Retrieve the game state from the database
+  const gameState = await getGameState(gameId);
+
+  // Check if it is the player's turn
+
+
+  // Check if the move is valid
+}
+
+//To be somehow called when a player plays a 7 card....not sure how that will play out yet
+async function moveTwoPawns(gameId, currentPlayerId, move1, move2) {
+  
+  
+  // Retrieve the game state from the database
+  const gameState = await getGameState(gameId);
+
+  // Check if it is the player's turn
+
+  //Check if the moves are valid
+}
+
+async function swapPawns(gameId, currentPlayerId, swap) {
+  /* swap = {
+    pawn1: { color: 'red', position: 4, zone: 'board' },
+    pawn2: { color: 'blue', position: 6, zone: 'board' },
+    card: '11',
+    destination: { position: 6, zone: 'board' },
+  } */
+  
+  // Retrieve the game state from the database
+  const gameState = await getGameState(gameId);
+
+  // Check if it is the player's turn
+
+  //Check if the swap is valid
 }
   
   
