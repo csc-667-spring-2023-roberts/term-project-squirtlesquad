@@ -132,6 +132,35 @@ class Board {
           }
         });
     }
+
+    getPawnAtPosition(position, zone, zonecolor) {
+        if (zone === 'start') {
+          return this.startZones[zonecolor][position];
+        }
+        else if (zone === 'board') {
+          return this.boardSpaces[position];
+        }
+        else if (zone === 'safety') {
+          return this.safetyZones[zonecolor][position];
+        }
+        else if (zone === 'home') {
+          return this.homeZones[zonecolor][position];
+        }
+        else {
+          throw new Error('Invalid pawn zone');
+        }
+    }
+
+    getNextHomePosition(color) {
+      for (let i = 0; i < 4; i++) {
+        if (this.homeZones[color][i] === null) {
+          return i;
+        }
+      }
+      return null;
+    }
   }
+
+  
 
   module.exports = Board;

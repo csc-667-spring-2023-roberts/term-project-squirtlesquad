@@ -172,48 +172,63 @@ async function updateGameState(gameState) {
 }
 
 
-async function movePawn(gameId, currentPlayerId, move) {
+async function movePawn(gameId, playerId, move) {
   /* move = {
     pawn: { color: 'red', position: 4, zone: 'board' },
     card: '2',
-    destination: { position: 6, zone: 'board' },
+    target: { position: 6, zone: 'board' },
   } */
   
   // Retrieve the game state from the database
   const gameState = await getGameState(gameId);
 
-  // Check if it is the player's turn
-
+  // Check if it is the current player's turn
+  const currentPlayer = gameState.currentPlayers.find(player => player.player_id === playerId);
+  const turnColors = {
+    1: 'red',
+    2: 'blue',
+    3: 'yellow',
+    4: 'green'
+  };
+  if (turnColors[gameState.currentTurn] !== currentPlayer.player_color) {
+    throw new Error("It is not your turn");
+  }
 
   // Check if the move is valid
+  const rules = new Rules(gameState.board, currentPlayer, move);
+  if (rules.isMoveValid()){}
 }
 
 //To be somehow called when a player plays a 7 card....not sure how that will play out yet
-async function moveTwoPawns(gameId, currentPlayerId, move1, move2) {
+async function moveTwoPawns(gameId, playerId, move1, move2) {
   
-  
-  // Retrieve the game state from the database
-  const gameState = await getGameState(gameId);
-
-  // Check if it is the player's turn
-
-  //Check if the moves are valid
 }
 
-async function swapPawns(gameId, currentPlayerId, swap) {
+async function swapPawns(gameId, playerId, swap) {
   /* swap = {
-    pawn1: { color: 'red', position: 4, zone: 'board' },
-    pawn2: { color: 'blue', position: 6, zone: 'board' },
+    pawn: { color: 'red', position: 4, zone: 'board' },
     card: '11',
-    destination: { position: 6, zone: 'board' },
+    target: { color: 'blue', position: 6, zone: 'board' },
   } */
   
   // Retrieve the game state from the database
   const gameState = await getGameState(gameId);
 
-  // Check if it is the player's turn
+  // Check if it is the current player's turn
+  const currentPlayer = gameState.currentPlayers.find(player => player.player_id === playerId);
+  const turnColors = {
+    1: 'red',
+    2: 'blue',
+    3: 'yellow',
+    4: 'green'
+  };
+  if (turnColors[gameState.currentTurn] !== currentPlayer.player_color) {
+    throw new Error("It is not your turn");
+  }
 
   //Check if the swap is valid
+  const rules = new Rules(gameState.board, currentPlayer, swap);
+  if (rules.isSwapValid()){}
 }
   
   

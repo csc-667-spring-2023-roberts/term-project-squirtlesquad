@@ -1,11 +1,19 @@
 class Rules {
     
+    constructor(board, currentPlayer, action) {
+      this.board = board;
+      this.currentPlayer = currentPlayer;
+      this.pawn = action.pawn;
+      this.card = action.card;
+      this.target = action.target;
+    }
+  
     calculateExpectedDestination(direction, spacesToMove, playerColor, currentPosition, currentZone) {
         let newPosition = currentPosition;
         let newZone = currentZone;
       
         for (let i = 0; i < spacesToMove; i++) {
-          const result = moveOneSpace(direction, playerColor, newPosition, newZone);
+          const result = this.simulateMovement(direction, playerColor, newPosition, newZone);
           newPosition = result.position;
           newZone = result.zone;
         }
@@ -13,7 +21,8 @@ class Rules {
         return { position: newPosition, zone: newZone };
       }
 
-    moveOneSpace(direction, playerColor, currentPosition, currentZone) {
+    // Simulates moving one space in the given direction from the given position and zone
+    simulateMovement(direction, playerColor, currentPosition, currentZone) {
         const safetyZoneEntryPositions = {
             red: 2,
             blue: 17,
@@ -47,7 +56,10 @@ class Rules {
             if (direction === 'forward') {
               if (currentPosition === 4) {
                 newZone = 'home';
-                newPosition = this.getNextHomePosition(playerColor);
+                newPosition = this.board.getNextHomePosition(playerColor);
+                if (newPosition === null) {
+                  throw new Error('No home position available');
+                }
               }
               else {
                 newPosition++;
@@ -73,31 +85,31 @@ class Rules {
         let expectedDestination;
         switch (card) {
             case '1':
-                expectedDestination = this.calculateExpectedDestination('forward', 1, currentPlayer.color, pawn.position, pawn.zone);
+                expectedDestination = this.calculateExpectedDestination('forward', 1, currentPlayer.player_color, pawn.position, pawn.zone);
                 if (expectedDestination.position !== destination.position || expectedDestination.zone !== destination.zone) {
                     return false;
                 }
                 break;
             case '2':
-                expectedDestination = this.calculateExpectedDestination('forward', 2, currentPlayer.color, pawn.position, pawn.zone);
+                expectedDestination = this.calculateExpectedDestination('forward', 2, currentPlayer.player_color, pawn.position, pawn.zone);
                 if (expectedDestination.position !== destination.position || expectedDestination.zone !== destination.zone) {
                     return false;
                 }
                 break;
             case '3':
-                expectedDestination = this.calculateExpectedDestination('forward', 3, currentPlayer.color, pawn.position, pawn.zone);
+                expectedDestination = this.calculateExpectedDestination('forward', 3, currentPlayer.player_color, pawn.position, pawn.zone);
                 if (expectedDestination.position !== destination.position || expectedDestination.zone !== destination.zone) {
                     return false;
                 }
                 break;
             case '4':
-                expectedDestination = this.calculateExpectedDestination('backward', 4, currentPlayer.color, pawn.position, pawn.zone);
+                expectedDestination = this.calculateExpectedDestination('backward', 4, currentPlayer.player_color, pawn.position, pawn.zone);
                 if (expectedDestination.position !== destination.position || expectedDestination.zone !== destination.zone) {
                     return false;
                 }
                 break;
             case '5':
-                expectedDestination = this.calculateExpectedDestination('forward', 5, currentPlayer.color, pawn.position, pawn.zone);
+                expectedDestination = this.calculateExpectedDestination('forward', 5, currentPlayer.player_color, pawn.position, pawn.zone);
                 if (expectedDestination.position !== destination.position || expectedDestination.zone !== destination.zone) {
                     return false;
                 }
@@ -106,7 +118,7 @@ class Rules {
                 //For each possible number of spaces to move between 1 - 7, calculate the expected destination
                 const possibleDestinations = [];
                 for (let i = 1; i <= 7; i++) {
-                    const expectedDestination = this.calculateExpectedDestination('forward', i, currentPlayer.color, pawn.position, pawn.zone);
+                    const expectedDestination = this.calculateExpectedDestination('forward', i, currentPlayer.player_color, pawn.position, pawn.zone);
                     possibleDestinations.push(expectedDestination);
                 }
 
@@ -115,28 +127,28 @@ class Rules {
                 }
                 break;
             case '8':
-                expectedDestination = this.calculateExpectedDestination('forward', 8, currentPlayer.color, pawn.position, pawn.zone);
+                expectedDestination = this.calculateExpectedDestination('forward', 8, currentPlayer.player_color, pawn.position, pawn.zone);
                 if (expectedDestination.position !== destination.position || expectedDestination.zone !== destination.zone) {
                     return false;
                 }
                 break;
             case '10':
                 //Possible destinations are 10 spaces forward or 1 space backward
-                const expectedDestinationForward = this.calculateExpectedDestination('forward', 10, currentPlayer.color, pawn.position, pawn.zone);
-                const expectedDestinationBackward = this.calculateExpectedDestination('backward', 1, currentPlayer.color, pawn.position, pawn.zone);
+                const expectedDestinationForward = this.calculateExpectedDestination('forward', 10, currentPlayer.player_color, pawn.position, pawn.zone);
+                const expectedDestinationBackward = this.calculateExpectedDestination('backward', 1, currentPlayer.player_color, pawn.position, pawn.zone);
                 if ((expectedDestinationForward.position !== destination.position || expectedDestinationForward.zone !== destination.zone) &&
                     (expectedDestinationBackward.position !== destination.position || expectedDestinationBackward.zone !== destination.zone)) {
                     return false;
                 }
                 break;
             case '11':
-                expectedDestination = this.calculateExpectedDestination('forward', 11, currentPlayer.color, pawn.position, pawn.zone);
+                expectedDestination = this.calculateExpectedDestination('forward', 11, currentPlayer.player_color, pawn.position, pawn.zone);
                 if (expectedDestination.position !== destination.position || expectedDestination.zone !== destination.zone) {
                     return false;
                 }
                 break;
             case '12':
-                expectedDestination = this.calculateExpectedDestination('forward', 12, currentPlayer.color, pawn.position, pawn.zone);
+                expectedDestination = this.calculateExpectedDestination('forward', 12, currentPlayer.player_color, pawn.position, pawn.zone);
                 if (expectedDestination.position !== destination.position || expectedDestination.zone !== destination.zone) {
                     return false;
                 }
@@ -146,35 +158,81 @@ class Rules {
             }
     }
     
-    isMoveValid(board, currentPlayer, move){
-        /* move = {
+    isMoveValid(){
+        /* move action = {
             pawn: { color: 'red', position: 4, zone: 'board' },
             card: '2',
             destination: { position: 6, zone: 'board' },
           } */
-        const pawn = move.pawn;
-        const card = move.card;
-        const destination = move.destination;
   
         //Check if move is being made by the correct player
-        if (pawn.color !== currentPlayer.color) {
+        if (this.pawn.color !== this.currentPlayer.player_color) {
           return false;
         }
   
         //Check that pawn is not in start zone
-        if (pawn.zone === 'start') {
+        if (this.pawn.zone === 'start') {
           return false;
         }
   
         //Check that pawn is not in home zone
-        if (pawn.zone === 'home') {
+        if (this.pawn.zone === 'home') {
           return false;
         }
   
         //Check if the destination is a valid position/zone based on the card played and current state of the board
-        if (!this.isValidDestination(currentPlayer, pawn, card, destination)) {
+        if (!this.isValidDestination(this.currentPlayer, this.pawn, this.card, this.target)) {
             return false;
         }
+
+        //Check if the destination is occupied by another pawn of the same color
+        const colorOfPawnAtDestination = this.board.getPawnAtPosition(this.target.position, this.target.zone, this.currentPlayer.player_color);
+        if (colorOfPawnAtDestination === this.currentPlayer.player_color) {
+            return false;
+        }
+
+        return true;
+
+      }
+
+      isSwapValid(){
+        /* swap action = {
+    pawn: { color: 'red', position: 4, zone: 'board' },
+    target: { color: 'blue', position: 6, zone: 'board' },
+    card: '11',
+  } */
+
+        //Check if swap is being made by the correct player
+        if (this.pawn.color !== this.currentPlayer.player_color) {
+            return false;
+        }
+
+        //Check that pawn is not in start zone
+        if (this.pawn.zone === 'start') {
+            return false;
+        }
+
+        //Check that pawn is not in home zone
+        if (this.pawn.zone === 'home') {
+            return false;
+        }
+
+        //Check that target is not the same color as the pawn
+        if (this.pawn.color === this.target.color) {
+            return false;
+        }
+
+        //Check that target is not in start, home, or safe zone
+        if (this.target.zone === 'start' || this.target.zone === 'home' || this.target.zone === 'safe') {
+            return false;
+        }
+
+        //Check that card is an 11
+        if (this.card !== '11') {
+            return false;
+        }
+
+        return true;
 
       }
 }
