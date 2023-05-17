@@ -1,3 +1,18 @@
+import express from "express";
+import createHttpError from "http-errors";
+import path from "path";
+import livereload from "livereload";
+import connectLiveReload from "connect-livereload";
+import morgan from "morgan";
+import cookieParser from "cookie-parser";
+import homeRoutes from "./routes/static/home.js";
+import gamesRoutes from "./routes/static/games.js";
+import lobbyRoutes from "./routes/static/lobby.js";
+import authenticationRoutes from "./routes/static/authentication.js";
+
+
+
+
 const path = require("path");
 const createError = require("http-errors");
 const cookieParser = require("cookie-parser");
@@ -10,12 +25,30 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.set("views", path.join(__dirname, "backend", "views"));
-app.set("view engine", "pug");
-app.use(express.static(path.join(__dirname, "backend", "static")));
+
+if (process.env.NODE_ENV = "development"){
+  const liveReloadServer = livereload.createServer();
+  liveReloadServer.watch(path.join(".", "backend", "static"));
+  liveReloadServer.server.once("connection", () => {
+    setTimeout(() => {
+      liveReloadServer.refresh("/");
+    }, 100);
+  });
+  app.use(connectLiveReload());
+}
+
+app.set("views", path.join(".", "backend", "views"));
+app.set("view engine", "ejs");
+
+app.use(express.static(path.join(".", "backend", "static")));
+
 
 const rootRoutes = require("./backend/routes/root");
-app.use("/", rootRoutes);
+
+app.use("/", homeRoutes);
+app.use("/games", gamesRoutes);
+app.use("/lobby", lobbyRoutes);
+app.use("/authentication", authenticationRoutes);
 
 const PORT = process.env.PORT || 3000;
 
@@ -24,5 +57,5 @@ app.listen(PORT, () => {
 });
 
 app.use((request, response, next) => {
-  next(createError(404));
+  next(createHttpError(404));
 });
