@@ -1,0 +1,49 @@
+.SiteNav {
+    background: white;
+    width: 100%;
+    height: 50px;
+    font-family:sans-serif;
+    
+}
+
+nav {
+    display: block;
+    border-bottom: 3px solid #333333;
+    background: white;
+}
+
+.navcontents {
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    display: flex;
+    height: 100%;
+    margin-left: 50px;
+    margin-right: 50px;
+    margin-top: 20px;
+    width: 90%;
+}
+
+.navlink {
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    color: #262626;
+    display: flex;
+    font-size: 18px;
+    font-weight: bold;
+    margin-left: 2px;
+    padding: 0 16px;
+    text-decoration: none;
+    
+}
+
+
+
+.navright {
+    margin-left: auto;
+}
+
+
+
+

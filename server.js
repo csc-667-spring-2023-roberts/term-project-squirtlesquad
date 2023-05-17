@@ -17,6 +17,36 @@ app.use(express.static(path.join(__dirname, "backend", "static")));
 const rootRoutes = require("./backend/routes/root");
 app.use("/", rootRoutes);
 
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'home.html'));
+});
+
+app.get('/rules', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'rules.html'));
+});
+
+app.get('/games', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'games.html'));
+});
+
+app.get('/waiting', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'waiting.html'));
+});
+
+app.get('/gameboard', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'gameboard.html'));
+});
+
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+app.get('/signup', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'signup.html'));
+});
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
