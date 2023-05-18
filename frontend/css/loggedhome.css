@@ -1,5 +1,20 @@
 @media only screen and (min-width: 100px){
-body {
+.split-container {
+    display: flex;
+    height: 700px;
+  }
+  
+  .left-section {
+    flex: 1;
+    padding: 20px;
+    border-right: 3px solid #333333;
+    background-color: rgb(140, 202, 237);
+  }
+  
+  .right-section {
+    flex: 1;
+  }
+  body {
     background-color: azure;
 }
 
@@ -36,22 +51,21 @@ img {
 
 .HomePage__header-img {
     display: block;
-    margin: 0 auto;
+    margin-top: 10px;
     max-height:auto;
     max-width: 900px;
     position: relative;
     width: 100%;
-    padding: 40px;
+   
 }
 
 .HomePage__join {
-    align-items: center;
-    background: white;
+    position: relative;
     display: flex;
-    min-height: 60px;
+    align-items: center;
+    background-color: rgb(140, 202, 237);
     justify-content: center;
-    width: 100%;
-    border-top: 3px solid #333333;
+    margin-top: 20%;
 }
 
 
@@ -59,20 +73,21 @@ img {
     border: 4px solid black;
     border-radius: 6px;
     color: black;
-    background-color: rgb(140, 202, 237);
+    background-color: white;
     cursor: pointer;
     font-size: 15px;
     padding: 8px 12px;
-    margin-left: 20px;
+    margin: auto;
     text-transform: uppercase;
     font-weight: bold;
 }
 .HomePage__join :hover{
-    background-color: rgb(173, 218, 244);
+    background-color: rgb(209, 238, 255);
 }
 
 
 a{
     text-decoration: none;
 }
+
 }

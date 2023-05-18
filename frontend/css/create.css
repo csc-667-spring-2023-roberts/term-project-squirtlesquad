@@ -1,0 +1,109 @@
+@media only screen and (min-width: 100px){
+    body {
+        background: rgb(140, 202, 237);
+    }
+    @media only screen and (min-width: 100px){
+        body {
+        background-color: azure;
+    }
+    
+    .rules__header {
+        overflow: hidden;
+        position: relative;
+        width: auto;
+        height: auto;
+    }
+    
+    section {
+        display: block;
+    }
+    
+    .rules__container {
+        position: relative;
+        height:auto;
+        
+      }
+      
+      
+      .rules__text-container h1 {
+        text-decoration: underline;
+        font-weight: bold;
+        text-align: center;
+        font-size: 32px;
+        margin-bottom: 10px;
+      } 
+      
+      .rules__text-container h3 {
+        text-decoration: underline;
+        padding-left: 10px;
+        font-size: 22px;
+        margin-bottom: 10px;
+      }
+      
+      .rules__text-container p {
+        padding-left: 10px;
+        font-size: 18px;
+      }
+    
+      .rules__header-bg {
+        height:1200px;
+    }
+    
+    }
+    .create-game-form {
+        background-color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 600px;
+        border: 2px solid #333;
+        border-radius: 10px;
+        padding: 20px;
+        width: 500px;
+        margin: 0 auto;
+        margin-top: 30px;
+        background-color: white;
+        position: absolute;
+        margin-top: 600px;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: left;
+        color: black;
+        border: 6px solid #333333;
+        width: 90%; 
+      max-width: 800px; 
+      padding: 20px; 
+      }
+      
+      .create-game-form h1 {
+        margin-bottom: 20px;
+      }
+      
+      .create-game-form form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .create-game-form label {
+        margin-bottom: 10px;
+      }
+      
+      .create-game-form input,
+      .create-game-form select {
+        padding: 8px;
+        margin-bottom: 15px;
+        width: 100%;
+      }
+      
+      .create-game-form button {
+        padding: 10px 20px;
+        background-color: #333;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        width: 100%;
+      }
+
+    }

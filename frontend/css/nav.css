@@ -1,3 +1,4 @@
+@media only screen and (min-width: 100px){
 .SiteNav {
     background: white;
     width: 100%;
@@ -46,4 +47,4 @@ nav {
 
 
 
-
+}
