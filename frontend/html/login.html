@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <title>Login</title>
     <link rel="stylesheet" href="../css/app.css">
-<link rel="stylesheet" href="../css/create.css">
+<link rel="stylesheet" href="../css/auth.css">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@00;400;500;600;700&display=swap" rel="stylesheet">
@@ -16,14 +16,31 @@
 
   <div id="nav-container">
 </div>
-<div class="behindform">
+<section class="rules__container">
+ 
+      
 <div class="create-game-form">
-  <h1>Log In</h1>
+  <h1>Log in</h1>
   <form>
+  
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username" placeholder="Enter your username" required>
+  
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" placeholder="Enter your password" required>
+  
+      <button type="submit">Login</button>
     
+
   </form>
 </div>
-</div>
+  
+  </div>
+  <img class="rules__header-bg" src="..\images\header-bg.jpg">
+</section>
+
+
+
 
 
 <script src="../js/nav.js"></script>

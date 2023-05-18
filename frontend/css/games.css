@@ -1,0 +1,88 @@
+
+@media only screen and (min-width: 100px){
+    body {
+    background-color: azure;
+}
+
+.rules__container {
+    overflow: hidden;
+    position: relative;
+    width: auto;
+    height: 1000px;
+}
+
+section {
+    display: block;
+}
+ 
+
+  .rules__header-bg {
+    height:1000px;
+}
+
+
+.availcontainer {
+  background-color: white;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 800px;
+  border-radius: 10px;
+  width: 800px;
+  position: absolute;
+ margin-top: 450px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 6px solid #333333;
+}
+
+.availcontainer-section {
+    border: 2px solid black;
+    height: 80px;
+    width: 700px;
+    margin: 10px;
+  }
+
+.availcontainer h1 {
+    text-decoration: underline;
+    font-weight: bold;
+    text-align: center;
+    font-size: 32px;
+    margin-top: 10px;
+}
+
+
+.availcontainer h3 {
+    padding-left: 10px;
+    font-size: 22px;
+    margin-bottom: 10px;
+  }
+  
+  .availcontainer p {
+    padding-left: 10px;
+    font-size: 18px;
+  }
+
+  .pieceimg{
+    height: 50px;
+    width: auto;
+    padding-right: 20px;
+  }
+
+  .join{
+    margin-left: 50%;
+    padding: 10px 20px;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      width: 100px;
+      border-radius: 7px;
+  }
+
+  .join:hover{
+    background-color: rgb(108, 108, 108);
+  }
+}
