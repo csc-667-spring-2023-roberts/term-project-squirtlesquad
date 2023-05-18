@@ -14,8 +14,7 @@ const homeRoutes = require("./routes/static/home.js");
 const gamesRoutes = require("./routes/static/games.js");
 const lobbyRoutes = require("./routes/static/lobby.js");
 const authenticationRoutes = require("./routes/static/authentication.js");
-
-
+const testRoutes = require("./routes/static/test.js");
 
 const path = require("path");
 const createError = require("http-errors");
@@ -31,6 +30,7 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use("/test", testRoutes);
 
 if (process.env.NODE_ENV = "development"){
   const liveReloadServer = livereload.createServer();
