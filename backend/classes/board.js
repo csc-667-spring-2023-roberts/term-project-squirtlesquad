@@ -159,6 +159,91 @@ class Board {
       }
       return null;
     }
+
+    getNextStartPosition(color) {
+      for (let i = 0; i < 4; i++) {
+        if (this.startZones[color][i] === null) {
+          return i;
+        }
+      }
+      return null;
+    }
+
+    changePawnPosition(beginPosition, beginZone, beginZoneColor, endPosition, endZone, endZoneColor) {
+      let pawnColor = null;
+      if (beginZone === 'start') {
+        pawnColor = this.startZones[beginZoneColor][beginPosition];
+        this.startZones[beginZoneColor][beginPosition] = null;
+      }
+      else if (beginZone === 'board') {
+        pawnColor = this.boardSpaces[beginPosition];
+        this.boardSpaces[beginPosition] = null;
+      }
+      else if (beginZone === 'safety') {
+        pawnColor = this.safetyZones[beginZoneColor][beginPosition];
+        this.safetyZones[beginZoneColor][beginPosition] = null;
+      }
+      else if (beginZone === 'home') {
+        pawnColor = this.homeZones[beginZoneColor][beginPosition];
+        this.homeZones[beginZoneColor][beginPosition] = null;
+      }
+      else {
+        throw new Error('Invalid pawn zone');
+      }
+
+      if (endZone === 'start') {
+        this.startZones[endZoneColor][endPosition] = pawnColor;
+      }
+      else if (endZone === 'board') {
+        this.boardSpaces[endPosition] = pawnColor;
+      }
+      else if (endZone === 'safety') {
+        this.safetyZones[endZoneColor][endPosition] = pawnColor;
+      }
+      else if (endZone === 'home') {
+        this.homeZones[endZoneColor][endPosition] = pawnColor;
+      }
+      else {
+        throw new Error('Invalid pawn zone');
+      }
+    }
+
+    swapPawnPositions(pawn1Position, pawn1Zone, pawn1ZoneColor, pawn2Position, pawn2Zone, pawn2ZoneColor) {
+      let pawn1Color = this.getPawnAtPosition(pawn1Position, pawn1Zone, pawn1ZoneColor);
+      let pawn2Color = this.getPawnAtPosition(pawn2Position, pawn2Zone, pawn2ZoneColor);
+
+      if (pawn1Zone === 'start') {
+        this.startZones[pawn1ZoneColor][pawn1Position] = pawn2Color;
+      }
+      else if (pawn1Zone === 'board') {
+        this.boardSpaces[pawn1Position] = pawn2Color;
+      }
+      else if (pawn1Zone === 'safety') {
+        this.safetyZones[pawn1ZoneColor][pawn1Position] = pawn2Color;
+      }
+      else if (pawn1Zone === 'home') {
+        this.homeZones[pawn1ZoneColor][pawn1Position] = pawn2Color;
+      }
+      else {
+        throw new Error('Invalid pawn zone');
+      }
+      if (pawn2Zone === 'start') {
+        this.startZones[pawn2ZoneColor][pawn2Position] = pawn1Color;
+      }
+      else if (pawn2Zone === 'board') {
+        this.boardSpaces[pawn2Position] = pawn1Color;
+      }
+      else if (pawn2Zone === 'safety') {
+        this.safetyZones[pawn2ZoneColor][pawn2Position] = pawn1Color;
+      }
+      else if (pawn2Zone === 'home') {
+        this.homeZones[pawn2ZoneColor][pawn2Position] = pawn1Color;
+      }
+      else {
+        throw new Error('Invalid pawn zone');
+      }
+
+    }
   }
 
   

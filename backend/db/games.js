@@ -196,7 +196,26 @@ async function movePawn(gameId, playerId, move) {
 
   // Check if the move is valid
   const rules = new Rules(gameState.board, currentPlayer, move);
-  if (rules.isMoveValid()){}
+  if (rules.isMoveValid()){
+    // Check if the destination has an opponent's pawn, and if so, send it back to its start zone
+    const opponentPawnColor = gameState.board.getPawnAtPosition(move.target.position, move.target.zone, currentPlayer.player_color);
+    if (opponentPawnColor) {
+      let opponentStartSpace = gameState.board.getNextStartPosition(opponentPawnColor);
+      gameState.board.changePawnPosition(move.target.position, move.target.zone, currentPlayer.player_color, opponentStartSpace, 'start', opponentPawnColor);
+    }
+
+    // Move the pawn
+    gameState.board.changePawnPosition(move.pawn.position, move.pawn.zone, currentPlayer.player_color, move.target.position, move.target.zone, currentPlayer.player_color);
+
+    // Advance the game to the next turn
+    gameState.currentTurn = (gameState.currentTurn % gameState.currentPlayers.length) + 1;
+
+    //Update the game state in the database
+    await updateGameState(gameState);
+  }
+  else {
+    throw new Error("Invalid move");
+  }
 }
 
 //To be somehow called when a player plays a 7 card....not sure how that will play out yet
@@ -228,7 +247,19 @@ async function swapPawns(gameId, playerId, swap) {
 
   //Check if the swap is valid
   const rules = new Rules(gameState.board, currentPlayer, swap);
-  if (rules.isSwapValid()){}
+  if (rules.isSwapValid()){
+    //Swap the pawns
+    gameState.board.swapPawnPositions(swap.pawn.position, swap.pawn.zone, currentPlayer.player_color, swap.target.position, swap.target.zone, swap.target.color);
+
+    //Advance the game to the next turn
+    gameState.currentTurn = (gameState.currentTurn % gameState.currentPlayers.length) + 1;
+
+    //Update the game state in the database
+    await updateGameState(gameState);
+  }
+  else {
+    throw new Error("Invalid swap");
+  }
 }
   
   
