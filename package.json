@@ -9,7 +9,8 @@
     "start:dev": "concurrently \"npm:server:dev\" \"npm:build:dev\"",
     "server:dev": "NODE_ENV=development nodemon -e js,pug --watch backend ./server.js",
     "build": "webpack",
-    "build:dev": "webpack --watch"
+    "build:dev": "webpack --watch",
+    "postinstall": "npm run db:migrate"
   },
   "keywords": [],
   "author": "",
