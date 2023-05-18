@@ -10,6 +10,10 @@ import gamesRoutes from "./routes/static/games.js";
 import lobbyRoutes from "./routes/static/lobby.js";
 import authenticationRoutes from "./routes/static/authentication.js";
 
+const homeRoutes = require("./routes/static/home.js");
+const gamesRoutes = require("./routes/static/games.js");
+const lobbyRoutes = require("./routes/static/lobby.js");
+const authenticationRoutes = require("./routes/static/authentication.js");
 
 
 
@@ -19,6 +23,8 @@ const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
 
 const express = require("express");
+
+require("dotenv").config();
 const app = express();
 
 app.use(morgan("dev"));
