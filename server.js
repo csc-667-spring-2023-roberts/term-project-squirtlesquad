@@ -1,14 +1,5 @@
-import express from "express";
-import createHttpError from "http-errors";
-import path from "path";
-import livereload from "livereload";
-import connectLiveReload from "connect-livereload";
-import morgan from "morgan";
-import cookieParser from "cookie-parser";
-import homeRoutes from "./routes/static/home.js";
-import gamesRoutes from "./routes/static/games.js";
-import lobbyRoutes from "./routes/static/lobby.js";
-import authenticationRoutes from "./routes/static/authentication.js";
+const express = require("express");
+const createHttpError = require("http-errors");
 
 const homeRoutes = require("./routes/static/home.js");
 const gamesRoutes = require("./routes/static/games.js");
@@ -43,10 +34,10 @@ if (process.env.NODE_ENV = "development"){
   app.use(connectLiveReload());
 }
 
-app.set("views", path.join(".", "backend", "views"));
+app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
-app.use(express.static(path.join(".", "backend", "static")));
+app.use(express.static(path.join(__dirname, "static")));
 
 
 const rootRoutes = require("./backend/routes/root");
