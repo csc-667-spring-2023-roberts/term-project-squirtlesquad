@@ -42,6 +42,33 @@ async function storeInitialState(gameId, hostId, board, deck) {
     }
   }
 
+async function listJoinableGames(playerId){
+  const joinableGamesQuery = `
+    SELECT g.game_id, COUNT(cp.player_id) AS current_players
+    FROM game g
+    LEFT JOIN current_players cp ON g.game_id = cp.game_id
+    WHERE g.game_status = 0
+    GROUP BY g.game_id
+    HAVING COUNT(cp.player_id) < 4;
+  `;
+  const joinableGames = await db.any(joinableGamesQuery);
+
+  // Filter out games where the current player already participates
+  const filteredJoinableGames = joinableGames.filter(async (game) => {
+    const playerExistsQuery = `
+      SELECT *
+      FROM current_players
+      WHERE game_id = $1 AND player_id = $2
+    `;
+    const playerExists = await db.oneOrNone(playerExistsQuery, [game.game_id, playerId]);
+    
+    return !playerExists;  // If player doesn't exist in the game, then the game is joinable
+  });
+
+  // Return the filtered games list
+  return filteredJoinableGames;
+}
+
 async function joinGame(gameId, playerId){
   const joinGameQuery = `INSERT INTO current_players (game_id, player_id) VALUES ($1, $2)`;
   
@@ -170,6 +197,41 @@ async function updateGameState(gameState) {
     await db.none(insertCardQuery, [gameState.game_id, card.type, card.isUsed]);
   }
 }
+
+
+
+async function drawCard(gameId, playerId) {
+  // Retrieve the game state from the database
+  const gameState = await getGameState(gameId);
+
+  // Check if it is the current player's turn
+  const currentPlayer = gameState.currentPlayers.find(player => player.player_id === playerId);
+  const turnColors = {
+    1: 'red',
+    2: 'blue',
+    3: 'yellow',
+    4: 'green'
+  };
+  if (turnColors[gameState.currentTurn] !== currentPlayer.player_color) {
+    throw new Error("It is not your turn");
+  }
+
+  // Check if the deck is empty
+  if (gameState.deck.isEmpty()) {
+    throw new Error("The deck is empty");
+  }
+
+  // Draw a card from the deck
+  const card = gameState.deck.drawCard();
+
+  // Update the database
+  await updateGameState(gameState);
+
+  // Return the card
+  return card;
+}
+
+
 
 
 async function movePawn(gameId, playerId, move) {
