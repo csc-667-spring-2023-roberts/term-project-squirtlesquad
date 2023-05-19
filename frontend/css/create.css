@@ -86,5 +86,9 @@
       border-radius: 7px;
     }
 
+    .create-game-form button:hover{
+      background-color: rgb(108, 108, 108);
+    }
+
    
   }
