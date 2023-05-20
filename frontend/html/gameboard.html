@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <title>Game</title>
     <link rel="stylesheet" href="../css/app.css">
-<link rel="stylesheet" href="../css/home.css">
+<link rel="stylesheet" href="../css/gameboard.css">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@00;400;500;600;700&display=swap" rel="stylesheet">
@@ -16,6 +16,259 @@
 
   <div id="nav-container">
 </div>
+<section class="game__container">
+  <div class="cardcontainer">
+    <div class="players">
+      <p class="label">Players:</p>
+      <p>Red - <b class="username"></b></p>
+      <p>Blue - <b class="username"></b></p>
+      <p>Green - <b class="username"></b></p>
+      <p>Yellow - <b class="username"></b></p>
+    </div>
+    <div class="drawcard">
+      <button class="draw">Draw Card</button>
+    </div>
+    <div class="currentcard"></div>
+    <div class="discarded"></div>
+  </div>
+  
+  <div class = "game-board">
+    <div class="box"></div>
+    <div class="box"><div class="yellowslide"></div></div>
+    <div class="box"><div class="yellowslide"></div></div>
+    <div class="box"><div class="yellowslide"></div></div>
+    <div class="box"><div class="yellowslide"></div></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"><div class="yellowslide"></div></div>
+    <div class="box"><div class="yellowslide"></div></div>
+    <div class="box"><div class="yellowslide"></div></div>
+    <div class="box"><div class="yellowslide"></div></div>
+    <div class="box"><div class="yellowslide"></div></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="yellowsafe"></div>
+    <div class="yellowstart"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="box"><div class="greenslide"></div></div>
+    <div class="box"><div class="blueslide"></div></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="yellowsafe"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="box"><div class="greenslide"></div></div>
+    <div class="box"><div class="blueslide"></div></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="yellowsafe"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="greenhome"></div>
+    <div class="greenhome"></div>
+    <div class="greensafe"></div>
+    <div class="greensafe"></div>
+    <div class="greensafe"></div>
+    <div class="greensafe"></div>
+    <div class="greensafe"></div>
+    <div class="box"><div class="greenslide"></div></div>
+    <div class="box"><div class="blueslide"></div></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="yellowsafe"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="greenhome"></div>
+    <div class="greenhome"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="greenstart"></div>
+    <div class="box"><div class="greenslide"></div></div>
+    <div class="box"><div class="blueslide"></div></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="yellowsafe"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="box"></div>
+    <div class="box"><div class="blueslide"></div></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="yellowhome"></div>
+    <div class="yellowhome"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="yellowhome"></div>
+    <div class="yellowhome"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="redhome"></div>
+    <div class="redhome"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="redhome"></div>
+    <div class="redhome"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="redsafe"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="box"></div>
+    <div class="box"><div class="blueslide"></div></div>
+    <div class="bluestart"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="bluehome"></div>
+    <div class="bluehome"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="redsafe"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="box"></div>
+    <div class="box"><div class="blueslide"></div></div>
+    <div class="bluesafe"></div>
+    <div class="bluesafe"></div>
+    <div class="bluesafe"></div>
+    <div class="bluesafe"></div>
+    <div class="bluesafe"></div>
+    <div class="bluehome"></div>
+    <div class="bluehome"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="redsafe"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="box"></div>
+    <div class="box"><div class="blueslide"></div></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="redsafe"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="box"></div>
+    <div class="box"><div class="blueslide"></div></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="redstart"></div>
+    <div class="redsafe"></div>
+    <div class="wall"></div>
+    <div class="wall"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"><div class="redslide"></div></div>
+    <div class="box"><div class="redslide"></div></div>
+    <div class="box"><div class="redslide"></div></div>
+    <div class="box"><div class="redslide"></div></div>
+    <div class="box"><div class="redslide"></div></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"><div class="redslide"></div></div>
+    <div class="box"><div class="redslide"></div></div>
+    <div class="box"><div class="redslide"></div></div>
+    <div class="box"><div class="redslide"></div></div>
+    <div class="box"></div>
+   
+
+</div>
+
+  
+  
+  <img class="rules__header-bg" src="..\images\header-bg.jpg">
+ 
+</section>
+
+
 
 
 
