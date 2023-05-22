@@ -11,6 +11,7 @@
     "build": "webpack",
     "build:dev": "webpack --watch",
     "prepare": "husky install",
+
     "postinstall": "npm run db:migrate",
     "db:create": "node-pg-migrate create -- ",
     "db:migrate": "node-pg-migrate up",
@@ -19,6 +20,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/csc-667-spring-2023-roberts/term-project-squirtlesquad"
+
   },
   "keywords": [],
   "author": "",
