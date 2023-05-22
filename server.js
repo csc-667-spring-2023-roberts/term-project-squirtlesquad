@@ -8,10 +8,9 @@ const express = require("express");
 const app = express();
 const rootRoutes = require("./backend/routes/root");
 
-/*Test, next 3 lines
-const testRoutes = require("./routes/static/test.js");
+const testRoutes = require("./backend/routes/static/test.js");
 
-app.use("/test", testRoutes);*/
+app.use("/test", testRoutes);
 
 app.use(morgan("dev"));
 app.use(express.json());
