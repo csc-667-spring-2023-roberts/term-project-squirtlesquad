@@ -23,13 +23,8 @@ class Rules {
 
     // Simulates moving one space in the given direction from the given position and zone
     simulateMovement(direction, playerColor, currentPosition, currentZone) {
-        const safetyZoneEntryPositions = {
-            red: 2,
-            blue: 17,
-            green: 32,
-            yellow: 47
-          };
-        const entryPosition = safetyZoneEntryPositions[playerColor];
+        
+        const entryPosition = this.board.safetyZoneEntryPositions[playerColor];
         let newPosition = currentPosition;
         let newZone = currentZone;
 
@@ -235,6 +230,43 @@ class Rules {
         return true;
 
       }
+    
+    canMoveOutOfStart(){
+      /* start action = {
+    pawn: { color: 'red', position: 1, zone: 'start' },
+    card: '1',
+    target: { position: 1, zone: 'board' },
+  } */
+      //Check if start is being made by the correct player
+      if (this.pawn.color !== this.currentPlayer.player_color) {
+        return false;
+      }
+
+      //Check that pawn is in start zone
+      if (this.pawn.zone !== 'start') {
+        return false;
+      }
+
+      //Check that card is a 1 or 2
+      if (this.card !== '1' && this.card !== '2') {
+        return false;
+      }
+
+      //Check if the destination is a valid start position and zone for the color of the pawn 
+      if (this.target.position !== this.board.startPositions[this.pawn.color] || this.target.zone !== 'board') {
+        return false;
+      }
+
+      //Check if the destination is occupied by another pawn of the same color
+      const colorOfPawnAtDestination = this.board.getPawnAtPosition(this.target.position, this.target.zone, this.currentPlayer.player_color);
+      if (colorOfPawnAtDestination === this.currentPlayer.player_color) {
+        return false;
+      }
+
+      return true;
+    }
+
+    
 }
 
 module.exports = Rules;

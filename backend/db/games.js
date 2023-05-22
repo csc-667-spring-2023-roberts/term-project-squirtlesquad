@@ -125,7 +125,9 @@ async function startGame(gameId){
   //Update the game status to started
   await db.none(updateGameStatusQuery, [gameId]);
 
-  //Send the initial game state to all players
+  //Return game state
+  return await getGameState(gameId);
+
 
 }
 
@@ -232,7 +234,53 @@ async function drawCard(gameId, playerId) {
 }
 
 
+async function moveOutOfStart(gameId, playerId, start){
+  /* start = {
+    pawn: { color: 'red', position: 1, zone: 'start' },
+    card: '1',
+    target: { position: 1, zone: 'board' },
+  } */
+  
+  // Retrieve the game state from the database
+  const gameState = await getGameState(gameId);
 
+  // Check if it is the current player's turn
+  const currentPlayer = gameState.currentPlayers.find(player => player.player_id === playerId);
+  const turnColors = {
+    1: 'red',
+    2: 'blue',
+    3: 'yellow',
+    4: 'green'
+  };
+  if (turnColors[gameState.currentTurn] !== currentPlayer.player_color) {
+    throw new Error("It is not your turn");
+  }
+
+  //Check if it is allowed to move out of start
+  const rules = new Rules(gameState.board, currentPlayer, start);
+  if (rules.canMoveOutOfStart()){
+    // Check if the destination has an opponent's pawn, and if so, send it back to its start zone
+    const opponentPawnColor = gameState.board.getPawnAtPosition(start.target.position, start.target.zone, currentPlayer.player_color);
+    if (opponentPawnColor) {
+      let opponentStartSpace = gameState.board.getNextStartPosition(opponentPawnColor);
+      gameState.board.changePawnPosition(start.target.position, start.target.zone, currentPlayer.player_color, opponentStartSpace, 'start', opponentPawnColor);
+    }
+
+    // Move the pawn
+    gameState.board.changePawnPosition(start.pawn.position, start.pawn.zone, currentPlayer.player_color, start.target.position, start.target.zone, currentPlayer.player_color);
+
+    // If card is not '2', advance the game to the next turn
+    if (start.card !== '2') {
+      gameState.currentTurn = (gameState.currentTurn % gameState.currentPlayers.length) + 1;
+    }
+
+    //Update the game state in the database
+    await updateGameState(gameState);
+  }
+  else {
+    throw new Error("Invalid move out of start");
+  }
+}
 
 async function movePawn(gameId, playerId, move) {
   /* move = {
@@ -269,8 +317,25 @@ async function movePawn(gameId, playerId, move) {
     // Move the pawn
     gameState.board.changePawnPosition(move.pawn.position, move.pawn.zone, currentPlayer.player_color, move.target.position, move.target.zone, currentPlayer.player_color);
 
-    // Advance the game to the next turn
-    gameState.currentTurn = (gameState.currentTurn % gameState.currentPlayers.length) + 1;
+    //Check if pawn has landed on a slide
+    const slide = gameState.board.checkForSlide(move.pawn.color, move.target.position);
+    if (slide) {
+      // Check if opponent's pawn is on the slide, and if so, send it back to its start zone
+      for (let i = 0; i < slide.slideLength; i++) {
+        const opponentPawnColor = gameState.board.getPawnAtPosition(slide.start + i, 'board', currentPlayer.player_color);
+        if (opponentPawnColor) {
+          let opponentStartSpace = gameState.board.getNextStartPosition(opponentPawnColor);
+          gameState.board.changePawnPosition(slide.start + i, 'board', currentPlayer.player_color, opponentStartSpace, 'start', opponentPawnColor);
+        }
+      }
+      // Move the pawn to the end of the slide
+      gameState.board.changePawnPosition(move.target.position, move.target.zone, currentPlayer.player_color, slide.end, 'board', currentPlayer.player_color);
+    }
+
+    // If card is not '2', advance the game to the next turn
+    if (start.card !== '2') {
+      gameState.currentTurn = (gameState.currentTurn % gameState.currentPlayers.length) + 1;
+    }
 
     //Update the game state in the database
     await updateGameState(gameState);
@@ -312,6 +377,21 @@ async function swapPawns(gameId, playerId, swap) {
   if (rules.isSwapValid()){
     //Swap the pawns
     gameState.board.swapPawnPositions(swap.pawn.position, swap.pawn.zone, currentPlayer.player_color, swap.target.position, swap.target.zone, swap.target.color);
+
+    //Check if pawn has landed on a slide
+    const slide = gameState.board.checkForSlide(move.pawn.color, move.target.position);
+    if (slide) {
+      // Check if opponent's pawn is on the slide, and if so, send it back to its start zone
+      for (let i = 0; i < slide.slideLength; i++) {
+        const opponentPawnColor = gameState.board.getPawnAtPosition(slide.start + i, 'board', currentPlayer.player_color);
+        if (opponentPawnColor) {
+          let opponentStartSpace = gameState.board.getNextStartPosition(opponentPawnColor);
+          gameState.board.changePawnPosition(slide.start + i, 'board', currentPlayer.player_color, opponentStartSpace, 'start', opponentPawnColor);
+        }
+      }
+      // Move the pawn to the end of the slide
+      gameState.board.changePawnPosition(move.target.position, move.target.zone, currentPlayer.player_color, slide.end, 'board', currentPlayer.player_color);
+    }
 
     //Advance the game to the next turn
     gameState.currentTurn = (gameState.currentTurn % gameState.currentPlayers.length) + 1;

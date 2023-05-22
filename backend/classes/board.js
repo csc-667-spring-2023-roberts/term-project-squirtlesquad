@@ -38,6 +38,25 @@ class Board {
         green: [null, null, null, null],
         yellow: [null, null, null, null],
       };
+
+      this.safetyZoneEntryPositions = {
+        red: 2,
+        blue: 17,
+        yellow: 32,
+        green: 47
+      };
+      this.startPositions = {
+        red: 4,
+        blue: 19,
+        yellow: 34,
+        green: 49,
+      };
+      this.slidePositions = {
+        red: {small : {start: 1, end: 4}, large: {start: 9, end: 13}},
+        blue: {small : {start: 16, end: 19}, large: {start: 22, end: 26}},
+        yellow: {small : {start: 31, end: 34}, large: {start: 39, end: 43}},
+        green: {small : {start: 46, end: 49}, large: {start: 54, end: 58}},
+      };
     }
 
     clearBoard(){
@@ -167,6 +186,21 @@ class Board {
         }
       }
       return null;
+    }
+
+    checkForSlide(pawnColor, position){
+      for (let color in this.slidePositions) {
+        if (color !== pawnColor) {
+          // Check the small slide
+          if (position === this.slidePositions[color].small.start) {
+            return { slideColor: color, slideType: 'small', slideLength: 4, start: this.slidePositions[color].small.start, end: this.slidePositions[color].small.end };
+          }
+          // Check the large slide
+          if (position === this.slidePositions[color].large.start) {
+            return { slideColor: color, slideType: 'large', slideLength: 5, start: this.slidePositions[color].large.start, end: this.slidePositions[color].large.end };
+          }
+        }
+      }
     }
 
     changePawnPosition(beginPosition, beginZone, beginZoneColor, endPosition, endZone, endZoneColor) {

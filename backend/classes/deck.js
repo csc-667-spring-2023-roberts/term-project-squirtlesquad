@@ -2,6 +2,7 @@ class Deck {
     constructor() {
       this.drawPile = this.createDrawPile();
       this.discardPile = [];
+      this.activeCard = null;
       this.shuffle(this.drawPile);
     }
   
@@ -42,10 +43,12 @@ class Deck {
         this.resetDrawPile();
       }
       const card = this.drawPile.pop();
+      this.activeCard = card;
       return card;
     }
   
     discardCard(card) {
+      this.activeCard = null;
       this.discardPile.push(card);
     }
   
