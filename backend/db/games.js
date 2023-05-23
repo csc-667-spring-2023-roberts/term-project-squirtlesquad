@@ -430,6 +430,57 @@ async function swapPawns(gameId, playerId, swap) {
     throw new Error("Invalid swap");
   }
 }
+
+async function playSorryCard(gameId, playerId, action){
+  /* action = {
+    pawn: { color: 'red', position: 4, zone: 'start' },
+    card: 'sorry',
+    target: { color: 'blue', position: 6, zone: 'board' },
+  } */
+
+  // Retrieve the game state from the database
+  const gameState = await getGameState(gameId);
+
+  if (action.card !== gameState.deck.activeCard) {
+    throw new Error("The card does not match the active card");
+  }
+
+  // Check if it is the current player's turn
+  const currentPlayer = gameState.currentPlayers.find(player => player.player_id === playerId);
+  const turnColors = {
+    1: 'red', 
+    2: 'blue',
+    3: 'yellow',
+    4: 'green'
+  };
+  if (turnColors[gameState.currentTurn] !== currentPlayer.player_color) {
+    throw new Error("It is not your turn");
+  }
+
+  //Check if the action is valid
+  const rules = new Rules(gameState.board, currentPlayer, action);
+  if (rules.isSorryValid()){
+    //Move opponent's pawn to start
+    let opponentStartSpace = gameState.board.getNextStartPosition(action.target.color);
+    gameState.board.changePawnPosition(action.target.position, action.target.zone, action.target.color, opponentStartSpace, 'start', action.target.color);
+
+    //Move the pawn
+    gameState.board.changePawnPosition(action.pawn.position, action.pawn.zone, currentPlayer.player_color, action.target.position, action.target.zone, currentPlayer.player_color);
+
+    //Advance the game to the next turn
+    gameState.currentTurn = (gameState.currentTurn % gameState.currentPlayers.length) + 1;
+
+    //Discard the active card
+    gameState.deck.discardCard(gameState.deck.activeCard);
+
+    //Update the game state in the database
+    await updateGameState(gameState);
+  }
+  else {
+    throw new Error("Invalid play of sorry card");
+  }
+
+}
   
   
   

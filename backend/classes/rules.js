@@ -230,6 +230,41 @@ class Rules {
         return true;
 
       }
+
+    isSorryValid(){
+        /* sorry action = {
+        pawn: { color: 'red', position: 4, zone: 'start' },
+        card: 'sorry',
+        target: { color: 'blue', position: 6, zone: 'board' },
+      } */
+
+        //Check if sorry is being made by the correct player
+        if (this.pawn.color !== this.currentPlayer.player_color) {
+            return false;
+        }
+
+        //Check that pawn is in start zone
+        if (this.pawn.zone !== 'start') {
+            return false;
+        }
+
+        //Check that card is a sorry card
+        if (this.card !== 'sorry') {
+            return false;
+        }
+
+        //Check that target is not the same color as the pawn
+        if (this.pawn.color === this.target.color) {
+            return false;
+        }
+
+        //Check that target is not in start, home, or safe zone
+        if (this.target.zone === 'start' || this.target.zone === 'home' || this.target.zone === 'safe') {
+            return false;
+        }
+
+        return true;
+    }
     
     canMoveOutOfStart(){
       /* start action = {
