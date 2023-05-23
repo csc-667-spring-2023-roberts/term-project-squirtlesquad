@@ -23,8 +23,8 @@ async function createNewGame(hostId, gameTitle){
 
 async function storeInitialState(gameId, hostId, board, deck) {
     // Insert a new row in the current_players table for the host
-    const insertCurrentPlayerQuery = 'INSERT INTO current_players (game_id, player_id) VALUES ($1, $2) RETURNING current_player_id';
-    const currentPlayerResult = await db.one(insertCurrentPlayerQuery, [gameId, hostId]);
+    const insertCurrentPlayerQuery = 'INSERT INTO current_players (game_id, player_id, player_color) VALUES ($1, $2, $3) RETURNING current_player_id';
+    const currentPlayerResult = await db.one(insertCurrentPlayerQuery, [gameId, hostId, 'red']);
     const currentHostPlayerId = currentPlayerResult.current_player_id;
   
     // Insert the initial state of the board/pawns into the pawn table
@@ -70,33 +70,39 @@ async function listJoinableGames(playerId){
 }
 
 async function joinGame(gameId, playerId){
-  const joinGameQuery = `INSERT INTO current_players (game_id, player_id) VALUES ($1, $2)`;
+  // Order of player colors
+  const playerColors = ['red', 'blue', 'yellow', 'green'];
+
+  const joinGameQuery = `INSERT INTO current_players (game_id, player_id, player_color) VALUES ($1, $2, $3)`;
   
-  //Check if the game exists
+  // Check if the game exists
   const gameExistsQuery = `SELECT * FROM game WHERE game_id = $1`;
   const gameExists = await db.oneOrNone(gameExistsQuery, [gameId]);
   if(!gameExists){
     throw new Error("Game does not exist");
   }
   
-  //Check if the player is already in the game
+  // Check if the player is already in the game
   const playerExistsQuery = `SELECT * FROM current_players WHERE game_id = $1 AND player_id = $2`;
   const playerExists = await db.oneOrNone(playerExistsQuery, [gameId, playerId]);
   if(playerExists){
     throw new Error("Player is already in the game");
   }
   
-  //Check if the game has less than 4 players
+  // Get the number of current players
   const playerCountQuery = `SELECT COUNT(*) FROM current_players WHERE game_id = $1`;
-  const playerCount = await db.one(playerCountQuery, [gameId]);
-  if(playerCount.count >= 4){
+  const playerCountResult = await db.one(playerCountQuery, [gameId]);
+  const playerCount = playerCountResult.count;
+
+  // Check if the game is full
+  if(playerCount >= 4){
     throw new Error("Game is full");
   }
   
-  //Add the player to the game
-  await db.none(joinGameQuery, [gameId, playerId]);
-
+  // Add the new player to the game with their assigned color
+  await db.none(joinGameQuery, [gameId, playerId, playerColors[playerCount]]);
 }
+
 
 async function startGame(gameId){
   const updateGameStatusQuery = `UPDATE game SET game_status = 1 WHERE game_id = $1`;
@@ -175,8 +181,8 @@ async function getGameState(gameId) {
 
 async function updateGameState(gameState) {
   // Update the game table
-  const updateGameQuery = `UPDATE game SET current_turn = $1 WHERE game_id = $2`;
-  await db.none(updateGameQuery, [gameState.currentTurn, gameState.game_id]);
+  const updateGameQuery = `UPDATE game SET current_turn = $1, active_card = $2 WHERE game_id = $3`;
+  await db.none(updateGameQuery, [gameState.currentTurn, gameState.deck.activeCard, gameState.game_id]);
 
   // Delete the existing pawns in the database
   const deletePawnsQuery = `DELETE FROM pawns WHERE current_player_id IN (SELECT current_player_id FROM current_players WHERE game_id = $1)`;
@@ -244,6 +250,10 @@ async function moveOutOfStart(gameId, playerId, start){
   // Retrieve the game state from the database
   const gameState = await getGameState(gameId);
 
+  if (start.card !== gameState.deck.activeCard) {
+    throw new Error("The card does not match the active card");
+  }
+
   // Check if it is the current player's turn
   const currentPlayer = gameState.currentPlayers.find(player => player.player_id === playerId);
   const turnColors = {
@@ -274,6 +284,9 @@ async function moveOutOfStart(gameId, playerId, start){
       gameState.currentTurn = (gameState.currentTurn % gameState.currentPlayers.length) + 1;
     }
 
+    //Discard the active card
+    gameState.deck.discardCard(gameState.deck.activeCard);
+
     //Update the game state in the database
     await updateGameState(gameState);
   }
@@ -291,6 +304,10 @@ async function movePawn(gameId, playerId, move) {
   
   // Retrieve the game state from the database
   const gameState = await getGameState(gameId);
+
+  if (move.card !== gameState.deck.activeCard) {
+    throw new Error("The card does not match the active card");
+  }
 
   // Check if it is the current player's turn
   const currentPlayer = gameState.currentPlayers.find(player => player.player_id === playerId);
@@ -337,6 +354,9 @@ async function movePawn(gameId, playerId, move) {
       gameState.currentTurn = (gameState.currentTurn % gameState.currentPlayers.length) + 1;
     }
 
+    //Discard the active card
+    gameState.deck.discardCard(gameState.deck.activeCard);
+    
     //Update the game state in the database
     await updateGameState(gameState);
   }
@@ -359,6 +379,10 @@ async function swapPawns(gameId, playerId, swap) {
   
   // Retrieve the game state from the database
   const gameState = await getGameState(gameId);
+
+  if (swap.card !== gameState.deck.activeCard) {
+    throw new Error("The card does not match the active card");
+  }
 
   // Check if it is the current player's turn
   const currentPlayer = gameState.currentPlayers.find(player => player.player_id === playerId);
@@ -396,6 +420,9 @@ async function swapPawns(gameId, playerId, swap) {
     //Advance the game to the next turn
     gameState.currentTurn = (gameState.currentTurn % gameState.currentPlayers.length) + 1;
 
+    //Discard the active card
+    gameState.deck.discardCard(gameState.deck.activeCard);
+    
     //Update the game state in the database
     await updateGameState(gameState);
   }
