@@ -181,12 +181,27 @@ section {
     cursor: pointer;
     width: 100%;
     border-radius: 7px;
+    font-weight: bold;
   }
 
   .draw:hover{
     background-color: rgb(108, 108, 108);
   }
 
+  .roll{
+    padding: 10px 20px;
+    background-color: white;
+    color: black;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    border-radius: 7px;
+    font-weight: bold;
+  }
+
+  .roll:hover{
+    background-color: rgb(108, 108, 108);
+  }
   .currentcard{
     background-color: #d9d9d9;
     width: 200px;
@@ -202,5 +217,22 @@ section {
     border: 4px solid black;
     padding-top: 10px;
     display: inline-block;
+  }
+
+  .yellowpiece{
+    height:50px;
+    width: 50px;
+  }
+  .greenpiece{
+    height:50px;
+    width: 50px;
+  }
+  .bluepiece{
+    height:50px;
+    width: 50px;
+  }
+  .redpiece{
+    height:50px;
+    width: 50px;
   }
 }
