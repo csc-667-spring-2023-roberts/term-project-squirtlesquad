@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const db = require("../../db/connection.js");
 
-router.get("/", async (_request, response) => {
+router.get("/", async (request, response) => {
   /*
   const test_results = await db.any("SELECT * FROM test_table");
   const user_results = await db.any("SELECT * from users");
