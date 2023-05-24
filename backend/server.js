@@ -13,6 +13,7 @@ const gamesRoutes = require("./routes/static/games.js");
 const lobbyRoutes = require("./routes/static/lobby.js");
 const authenticationRoutes = require("./routes/static/authentication.js");
 const testRoutes = require("./routes/static/test.js");
+const apiGamesRoutes = require("./routes/api/games.js");
 
 app.use("/test", testRoutes);
 
@@ -48,6 +49,7 @@ app.use("/games", gamesRoutes);
 app.use("/lobby", lobbyRoutes);
 app.use("/authentication", authenticationRoutes);
 //app.use("/static/test", testRoutes);
+app.use("/api/games", apiGamesRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);
