@@ -1,7 +1,7 @@
 const db = require("./connection.js");
-const Board = require("./board.js");
-const Deck = require("./deck.js");
-const Rules = require("./rules.js");
+const Board = require("../classes/board.js");
+const Deck = require("../classes/deck.js");
+const Rules = require("../classes/rules.js");
 
 //test
 
