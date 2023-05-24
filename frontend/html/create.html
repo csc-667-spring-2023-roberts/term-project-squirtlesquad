@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Create Game</title>
+    <link rel="stylesheet" href="../css/app.css" />
+    <link rel="stylesheet" href="../css/create.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@00;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+  </head>
+  <body>
+    <div id="nav-container"></div>
+    <section class="rules__container">
+      <div class="create-game-form">
+        <h1>Create Game</h1>
+        <form>
+          <label for="game-name">Game Room Name:</label>
+          <input
+            type="text"
+            id="game-name"
+            name="game-name"
+            placeholder="Enter game room name"
+            required
+          />
+          <!-- 
+    <label for="num-players">Number of Players:</label>
+    <input type="number" id="num-players" name="num-players" min="2" max="4" placeholder="Enter number of players" required> -->
+
+          <!-- <label for="game-type">Game Type:</label>
+    <select id="game-type" name="game-type" required>
+      <option value="">Select game type</option>
+      <option value="1">Type 1</option>
+      <option value="2">Type 2</option>
+      <option value="3">Type 3</option>
+    </select> -->
+
+          <button class="formbtn" type="submit">Create</button>
+        </form>
+      </div>
+
+      <!-- </div> -->
+      <img class="rules__header-bg" src="..\images\header-bg.jpg" />
+    </section>
+
+    <script src="../js/nav.js"></script>
+    <script>
+      loadNavbar("nav-container");
+    </script>
+  </body>
+</html>
