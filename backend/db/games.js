@@ -19,6 +19,8 @@ async function createNewGame(hostId, gameTitle){
 
     // Store the initial game state in the database
     await storeInitialState(gameId, hostId, board, deck);
+
+    return gameId;
 }
 
 async function storeInitialState(gameId, hostId, board, deck) {
@@ -481,6 +483,20 @@ async function playSorryCard(gameId, playerId, action){
   }
 
 }
+
+module.exports = {
+  createNewGame,
+  getGameState,
+  joinGame,
+  listJoinableGames,
+  startGame,
+  drawCard,
+  moveOutOfStart,
+  movePawn,
+  moveTwoPawns,
+  swapPawns,
+  playSorryCard,
+};
   
   
   
