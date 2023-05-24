@@ -6,8 +6,12 @@ const morgan = require("morgan");
 
 const express = require("express");
 const app = express();
-const rootRoutes = require("./routes/root");
 
+const rootRoutes = require("./routes/root");
+const homeRoutes = require("./routes/static/home.js");
+const gamesRoutes = require("./routes/static/games.js");
+const lobbyRoutes = require("./routes/static/lobby.js");
+const authenticationRoutes = require("./routes/static/authentication.js");
 const testRoutes = require("./routes/static/test.js");
 
 app.use("/test", testRoutes);
@@ -38,13 +42,12 @@ if (process.env.NODE_ENV === "development") {
 app.use("/", rootRoutes);
 
 const PORT = process.env.PORT || 3000;
-/*
-app.use("/", homeRoutes);
+
+app.use("/home", homeRoutes);
 app.use("/games", gamesRoutes);
 app.use("/lobby", lobbyRoutes);
 app.use("/authentication", authenticationRoutes);
 //app.use("/static/test", testRoutes);
-*/
 
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);
