@@ -31,8 +31,8 @@ section {
       transform: translate(-50%, -50%);
       border: 3px solid #333333;
     display: grid;
-    grid-template-columns: 50px  50px  50px  50px  50px  50px  50px  50px  50px  50px  50px  50px  50px  50px  50px ; 
-    grid-template-rows: 50px  50px  50px  50px  50px  50px  50px  50px  50px  50px  50px  50px  50px  50px  50px;
+    grid-template-columns: 50px  50px  50px  50px  50px  50px  50px  50px  50px  50px  50px  50px  50px  50px  50px 50px ; 
+    grid-template-rows: 50px  50px  50px  50px  50px  50px  50px  50px  50px  50px  50px  50px  50px  50px  50px 50px;
     justify-content: center;
     
    }
