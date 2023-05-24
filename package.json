@@ -2,10 +2,9 @@
   "name": "term-project-squirtlesquad",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./server.js",
+    "start": "node ./backend/server.js",
     "start:dev": "concurrently \"npm:server:dev\" \"npm:build:dev\"",
     "server:dev": "set NODE_ENV=development && nodemon --watch backend ./server.js",
     "build": "webpack",
