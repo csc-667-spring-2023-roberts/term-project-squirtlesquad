@@ -20,9 +20,9 @@ socket.on(events.CHAT_MESSAGE_RECEIVED, ({ username, message, timestamp }) => {
   messageContainer.appendChild(entry);
 });
 
-document
-  .querySelector("input#chatMessage")
-  .addEventListener("keydown", (event) => {
+let inputchat = document.querySelector("input#chatMessage");
+if (inputchat) {
+  inputchat.addEventListener("keydown", (event) => {
     if (event.keyCode === 13) {
       const message = event.target.value;
       event.target.value = "";
@@ -34,6 +34,7 @@ document
       });
     }
   });
+}
 
 import { GAME_UPDATED } from "../shared/constants";
 import { GAME_CREATED } from "../shared/constants";
@@ -70,8 +71,10 @@ function gameCreatedHandler(socket) {
 
 function gameUpdatedHandler(socket, game_id) {
   socket.on(GAME_UPDATED(game_id), (game_state) => {
+    console.log(GAME_UPDATED(game_id), game_state);
+
     //Deserialize the game state
-    const state = JSON.parse(game_state);
+    const state = game_state;
 
     //Display the current active card
     const card = state.deck.activeCard;
@@ -118,12 +121,11 @@ function gameUpdatedHandler(socket, game_id) {
 
       element.innerHTML += `<img class="${color}piece" src="${imageSource}" />`;
     }
-
-    console.log({ game_state });
   });
 }
 
 async function fetchState(game_id) {
+  console.log("fetching state...");
   const response = await fetch(`/api/games/${game_id}/state`, {
     method: "POST",
     headers: {
@@ -168,13 +170,16 @@ async function testmove(game_id) {
 }
 
 function initializeBoard(game_id) {
+  console.log("initializing board...");
   //testdrawcard(game_id);
-  testmoveoutofstart(game_id);
+  //testmoveoutofstart(game_id);
   //testmove(game_id);
 
-  document
-    .getElementById("draw-card-button")
-    .addEventListener("click", async () => {
+  fetchState(game_id);
+
+  let drawcardbutton = document.getElementById("draw-card-button");
+  if (drawcardbutton) {
+    drawcardbutton.addEventListener("click", async () => {
       const response = await fetch(`/api/games/${game_id}/draw`, {
         method: "POST",
         headers: {
@@ -190,10 +195,11 @@ function initializeBoard(game_id) {
         console.error("Error drawing card:", response.statusText);
       }
     });
+  }
 
-  document
-    .getElementById("start-game-button")
-    .addEventListener("click", async () => {
+  let startgamebutton = document.getElementById("start-game-button");
+  if (startgamebutton) {
+    startgamebutton.addEventListener("click", async () => {
       const response = await fetch(`/api/games/${game_id}/start`, {
         method: "POST",
         headers: {
@@ -201,6 +207,7 @@ function initializeBoard(game_id) {
         },
       });
     });
+  }
 }
 
 gameCreatedHandler(socket);
