@@ -11,18 +11,18 @@ router.get("/register", (request, response) => {
 });
 
 router.post("/register", async (request, response) => {
-  const { username, email, password } = request.body;
+  const { username, password } = request.body;
 
   const salt = await bcrypt.genSalt(SALT_ROUNDS);
   const hash = await bcrypt.hash(password, salt);
 
   try {
-    const { id } = await Users.create(username, email, hash);
+    const { id } = await Users.create(username, hash);
 
     response.redirect("/lobby");
   } catch (error) {
     console.log({ error });
-    response.render("register", { title: "SquirleSquad", username, email });
+    response.render("register", { title: "SquirleSquad", username });
   }
 });
 
