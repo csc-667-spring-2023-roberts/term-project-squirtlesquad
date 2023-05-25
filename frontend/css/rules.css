@@ -1,0 +1,59 @@
+@media only screen and (min-width: 100px) {
+  body {
+    background-color: azure;
+  }
+
+  .rules__header {
+    overflow: hidden;
+    position: relative;
+    width: auto;
+    height: auto;
+  }
+
+  section {
+    display: block;
+  }
+
+  .rules__container {
+    position: relative;
+    height: auto;
+  }
+
+  .rules__text-container {
+    background-color: white;
+    position: absolute;
+    margin-top: 600px;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: left;
+    color: black;
+    border: 6px solid #333333;
+    width: 90%;
+    max-width: 800px;
+    padding: 20px;
+  }
+
+  .rules__text-container h1 {
+    text-decoration: underline;
+    font-weight: bold;
+    text-align: center;
+    font-size: 32px;
+    margin-bottom: 10px;
+  }
+
+  .rules__text-container h3 {
+    text-decoration: underline;
+    padding-left: 10px;
+    font-size: 22px;
+    margin-bottom: 10px;
+  }
+
+  .rules__text-container p {
+    padding-left: 10px;
+    font-size: 18px;
+  }
+
+  .rules__header-bg {
+    height: 1200px;
+  }
+}

@@ -15,6 +15,24 @@
       <li><a href="/lobby">Lobby</a></li>
       <li><a href="/games/42">Game (42)</a></li>
     </ul>
+    <div>
+      <a
+        href="/api/games/create"
+        id="create-game-link"
+        class="ms-btn ms-action"
+        >Create Game</a
+      >
+      <ul id="game-list">
+        
+      </ul>
+    </div>
+    <template id="available-game-item">
+      <div>
+        <li>
+          <a href="#">Join <span>42</span></a>
+        </li>
+      </div>
+    </template>
 
     <div id="chat-container">
       <div id="messages"></div>

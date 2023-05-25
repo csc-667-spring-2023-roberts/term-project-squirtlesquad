@@ -1,22 +1,20 @@
-<html>
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
   <head>
-    <title><%= title %></title>
-    <script src="/scripts/bundle.js"></script>
-    <link rel="stylesheet" href="/stylesheets/home.css" />
-    <link rel="stylesheet" href="/stylesheets/gameboard.css" />
+    <meta charset="utf-8" />
+    <title>Game</title>
+    <link rel="stylesheet" href="../css/app.css" />
+    <link rel="stylesheet" href="../css/gameboard.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@00;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" type="text/css" href="style.css" />
   </head>
   <body>
-    <h1>Game <%= id %> Page (Authenticated)</h1>
-
-    <ul>
-      <li><a href="/">Home</a></li>
-      <li><a href="/authentication/login">Login</a></li>
-      <li><a href="/authentication/register">Register</a></li>
-      <li><a href="/lobby">Lobby</a></li>
-      <li><a href="/games/42">Game (42)</a></li>
-    </ul>
-    <div class="drawcard"><button id="start-game-button" class="draw">Start Game</button></div>
-    
+    <div id="nav-container"></div>
     <section class="game__container">
       <div class="cardcontainer">
         <div class="players">
@@ -27,9 +25,10 @@
           <p>Yellow - <b class="username"></b></p>
         </div>
         <div class="drawcard">
-          <button id="draw-card-button" class="draw">Draw Card</button>
+          <button class="draw">Draw Card</button>
+          <button class="roll">Roll Dice</button>
         </div>
-        <div class="currentcard" id="current-card"></div>
+        <div class="currentcard"></div>
       </div>
 
       <div class="game-board">
@@ -54,10 +53,10 @@
         <div class="redsafe" id="rsf0"></div>
         <div class="wall"></div>
         <div class="redstart" id="rst0">
-          <!-- <img class="redpiece" src="..\images\redpiece.png" draggable="true" /> -->
+          <img class="redpiece" src="..\images\redpiece.png" draggable="true" />
         </div>
         <div class="redstart" id="rst1">
-          <!-- <img class="redpiece" src="..\images\redpiece.png" /> -->
+          <img class="redpiece" src="..\images\redpiece.png" />
         </div>
         <div class="wall"></div>
         <div class="wall"></div>
@@ -74,10 +73,10 @@
         <div class="redsafe" id="rsf1"></div>
         <div class="wall"></div>
         <div class="redstart" id="rst2">
-          <!-- <img class="redpiece" src="..\images\redpiece.png" /> -->
+          <img class="redpiece" src="..\images\redpiece.png" />
         </div>
         <div class="redstart" id="rst3">
-          <!-- <img class="redpiece" src="..\images\redpiece.png" /> -->
+          <img class="redpiece" src="..\images\redpiece.png" />
         </div>
         <div class="wall"></div>
         <div class="wall"></div>
@@ -119,10 +118,10 @@
         <div class="wall"></div>
         <div class="wall"></div>
         <div class="bluestart" id="bst0">
-          <!-- <img class="bluepiece" src="..\images\bluepiece.png" /> -->
+          <img class="bluepiece" src="..\images\bluepiece.png" />
         </div>
         <div class="bluestart" id="bst1">
-          <!-- <img class="bluepiece" src="..\images\bluepiece.png" /> -->
+          <img class="bluepiece" src="..\images\bluepiece.png" />
         </div>
         <div class="box" id="box19"><div class="blueslide"></div></div>
         <div class="box" id="box55"><div class="greenslide"></div></div>
@@ -139,10 +138,10 @@
         <div class="wall"></div>
         <div class="wall"></div>
         <div class="bluestart" id="bst2">
-          <!-- <img class="bluepiece" src="..\images\bluepiece.png" /> -->
+          <img class="bluepiece" src="..\images\bluepiece.png" />
         </div>
         <div class="bluestart" id="bst3">
-          <!-- <img class="bluepiece" src="..\images\bluepiece.png" /> -->
+          <img class="bluepiece" src="..\images\bluepiece.png" />
         </div>
         <div class="box" id="box20"></div>
         <div class="box" id="box54"><div class="greenslide"></div></div>
@@ -211,10 +210,10 @@
         <div class="box" id="box24"><div class="blueslide"></div></div>
         <div class="box" id="box50"></div>
         <div class="greenstart" id="gst0">
-          <!-- <img class="greenpiece" src="..\images\greenpiece.png" /> -->
+          <img class="greenpiece" src="..\images\greenpiece.png" />
         </div>
         <div class="greenstart" id="gst1">
-          <!-- <img class="greenpiece" src="..\images\greenpiece.png" /> -->
+          <img class="greenpiece" src="..\images\greenpiece.png" />
         </div>
         <div class="wall"></div>
         <div class="wall"></div>
@@ -231,10 +230,10 @@
         <div class="box" id="box25"><div class="blueslide"></div></div>
         <div class="box" id="box49"><div class="greenslide"></div></div>
         <div class="greenstart" id="gst2">
-          <!-- <img class="greenpiece" src="..\images\greenpiece.png" /> -->
+          <img class="greenpiece" src="..\images\greenpiece.png" />
         </div>
         <div class="greenstart" id="gst3">
-          <!-- <img class="greenpiece" src="..\images\greenpiece.png" /> -->
+          <img class="greenpiece" src="..\images\greenpiece.png" />
         </div>
         <div class="wall"></div>
         <div class="wall"></div>
@@ -276,10 +275,10 @@
         <div class="wall"></div>
         <div class="wall"></div>
         <div class="yellowstart" id="yst0">
-          <!-- <img class="yellowpiece" src="..\images\yellowpiece.png" /> -->
+          <img class="yellowpiece" src="..\images\yellowpiece.png" />
         </div>
         <div class="yellowstart" id="yst1">
-          <!-- <img class="yellowpiece" src="..\images\yellowpiece.png" /> -->
+          <img class="yellowpiece" src="..\images\yellowpiece.png" />
         </div>
         <div class="wall"></div>
         <div class="yellowsafe" id="ysf1"></div>
@@ -296,10 +295,10 @@
         <div class="wall"></div>
         <div class="wall"></div>
         <div class="yellowstart" id="yst2">
-          <!-- <img class="yellowpiece" src="..\images\yellowpiece.png" /> -->
+          <img class="yellowpiece" src="..\images\yellowpiece.png" />
         </div>
         <div class="yellowstart" id="yst3">
-          <!-- <img class="yellowpiece" src="..\images\yellowpiece.png" /> -->
+          <img class="yellowpiece" src="..\images\yellowpiece.png" />
         </div>
         <div class="wall"></div>
         <div class="yellowsafe" id="ysf0"></div>
@@ -325,5 +324,10 @@
 
       <img class="rules__header-bg" src="..\images\header-bg.jpg" />
     </section>
+
+    <script src="../js/nav.js"></script>
+    <script>
+      loadNavbar("nav-container");
+    </script>
   </body>
 </html>

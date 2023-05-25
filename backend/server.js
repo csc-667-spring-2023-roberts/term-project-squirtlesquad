@@ -21,6 +21,7 @@ const lobbyRoutes = require("./routes/static/lobby.js");
 const authenticationRoutes = require("./routes/static/authentication.js");
 const testRoutes = require("./routes/static/test.js");
 const chatRoutes = require("./routes/static/chat.js");
+const apiGamesRoutes = require("./routes/api/games.js");
 
 app.use("/test", testRoutes);
 
@@ -69,6 +70,7 @@ app.use("/lobby", isAuthenticated, lobbyRoutes);
 app.use("/authentication", authenticationRoutes);
 //app.use("/static/test", testRoutes);
 app.use("/chat", chatRoutes);
+app.use("/api/games", apiGamesRoutes);
 
 server.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);
