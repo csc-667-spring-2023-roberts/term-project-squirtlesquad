@@ -12,13 +12,13 @@ async function createNewGame(hostId, gameTitle) {
 
   // Create a new game in the database
   const createGameQuery =
-    "INSERT INTO game (game_name, game_status) VALUES ($1, $2) RETURNING game_id";
+    "INSERT INTO game (game_name, game_status) VALUES ($1, $2) RETURNING game_ID";
   const gameResult = await db.one(createGameQuery, [gameTitle, 0]);
-  const gameId = gameResult.game_id;
+  const gameId = gameResult.game_ID;
 
   // Associate the host with the new game
-  const hostQuery = "INSERT INTO player (player_id, game_id) VALUES ($1, $2)";
-  await db.none(hostQuery, [hostId, gameId]);
+  // const hostQuery = "INSERT INTO player (player_id, game_id) VALUES ($1, $2)";
+  // await db.none(hostQuery, [hostId, gameId]);
 
   // Store the initial game state in the database
   await storeInitialState(gameId, hostId, board, deck);
@@ -29,19 +29,19 @@ async function createNewGame(hostId, gameTitle) {
 async function storeInitialState(gameId, hostId, board, deck) {
   // Insert a new row in the current_players table for the host
   const insertCurrentPlayerQuery =
-    "INSERT INTO current_players (game_id, player_id, player_color) VALUES ($1, $2, $3) RETURNING current_player_id";
+    "INSERT INTO current_players (game_ID, player_ID, player_color) VALUES ($1, $2, $3) RETURNING current_player_ID";
   const currentPlayerResult = await db.one(insertCurrentPlayerQuery, [
     gameId,
     hostId,
     "red",
   ]);
-  const currentHostPlayerId = currentPlayerResult.current_player_id;
+  const currentHostPlayerId = currentPlayerResult.current_player_ID;
 
   // Insert the initial state of the board/pawns into the pawn table
   const pawns = board.getPawns();
   for (const pawn of pawns) {
     const insertPawnQuery =
-      "INSERT INTO pawns (current_player_id, zone, position) VALUES ($1, $2, $3)";
+      "INSERT INTO pawns (current_player_ID, zone, position) VALUES ($1, $2, $3)";
     await db.none(insertPawnQuery, [
       currentHostPlayerId,
       pawn.zone,
@@ -53,19 +53,19 @@ async function storeInitialState(gameId, hostId, board, deck) {
   const cards = deck.getCards();
   for (const card of cards) {
     const insertCardQuery =
-      "INSERT INTO card (game_id, card_type, is_used) VALUES ($1, $2, $3)";
+      "INSERT INTO card (game_ID, card_type, is_used) VALUES ($1, $2, $3)";
     await db.none(insertCardQuery, [gameId, card.type, card.isUsed]);
   }
 }
 
 async function listJoinableGames(playerId) {
   const joinableGamesQuery = `
-    SELECT g.game_id, COUNT(cp.player_id) AS current_players
+    SELECT g.game_ID, COUNT(cp.player_ID) AS current_players
     FROM game g
-    LEFT JOIN current_players cp ON g.game_id = cp.game_id
+    LEFT JOIN current_players cp ON g.game_ID = cp.game_ID
     WHERE g.game_status = 0
-    GROUP BY g.game_id
-    HAVING COUNT(cp.player_id) < 4;
+    GROUP BY g.game_ID
+    HAVING COUNT(cp.player_ID) < 4;
   `;
   const joinableGames = await db.any(joinableGamesQuery);
 
@@ -74,10 +74,10 @@ async function listJoinableGames(playerId) {
     const playerExistsQuery = `
       SELECT *
       FROM current_players
-      WHERE game_id = $1 AND player_id = $2
+      WHERE game_ID = $1 AND player_ID = $2
     `;
     const playerExists = await db.oneOrNone(playerExistsQuery, [
-      game.game_id,
+      game.game_ID,
       playerId,
     ]);
 
@@ -92,17 +92,17 @@ async function joinGame(gameId, playerId) {
   // Order of player colors
   const playerColors = ["red", "blue", "yellow", "green"];
 
-  const joinGameQuery = `INSERT INTO current_players (game_id, player_id, player_color) VALUES ($1, $2, $3)`;
+  const joinGameQuery = `INSERT INTO current_players (game_ID, player_ID, player_color) VALUES ($1, $2, $3)`;
 
   // Check if the game exists
-  const gameExistsQuery = `SELECT * FROM game WHERE game_id = $1`;
+  const gameExistsQuery = `SELECT * FROM game WHERE game_ID = $1`;
   const gameExists = await db.oneOrNone(gameExistsQuery, [gameId]);
   if (!gameExists) {
     throw new Error("Game does not exist");
   }
 
   // Check if the player is already in the game
-  const playerExistsQuery = `SELECT * FROM current_players WHERE game_id = $1 AND player_id = $2`;
+  const playerExistsQuery = `SELECT * FROM current_players WHERE game_ID = $1 AND player_ID = $2`;
   const playerExists = await db.oneOrNone(playerExistsQuery, [
     gameId,
     playerId,
@@ -112,7 +112,7 @@ async function joinGame(gameId, playerId) {
   }
 
   // Get the number of current players
-  const playerCountQuery = `SELECT COUNT(*) FROM current_players WHERE game_id = $1`;
+  const playerCountQuery = `SELECT COUNT(*) FROM current_players WHERE game_ID = $1`;
   const playerCountResult = await db.one(playerCountQuery, [gameId]);
   const playerCount = playerCountResult.count;
 
@@ -126,24 +126,24 @@ async function joinGame(gameId, playerId) {
 }
 
 async function startGame(gameId) {
-  const updateGameStatusQuery = `UPDATE game SET game_status = 1 WHERE game_id = $1`;
+  const updateGameStatusQuery = `UPDATE game SET game_status = 1 WHERE game_ID = $1`;
 
   //Check if the game exists
-  const gameExistsQuery = `SELECT * FROM game WHERE game_id = $1`;
+  const gameExistsQuery = `SELECT * FROM game WHERE game_ID = $1`;
   const gameExists = await db.oneOrNone(gameExistsQuery, [gameId]);
   if (!gameExists) {
     throw new Error("Game does not exist");
   }
 
   //Check if the game has at least 2 players
-  const playerCountQuery = `SELECT COUNT(*) FROM current_players WHERE game_id = $1`;
+  const playerCountQuery = `SELECT COUNT(*) FROM current_players WHERE game_ID = $1`;
   const playerCount = await db.one(playerCountQuery, [gameId]);
   if (playerCount.count < 2) {
     throw new Error("Game does not have enough players");
   }
 
   //Check if the game has not already started
-  const gameStatusQuery = `SELECT game_status FROM game WHERE game_id = $1`;
+  const gameStatusQuery = `SELECT game_status FROM game WHERE game_ID = $1`;
   const gameStatus = await db.one(gameStatusQuery, [gameId]);
   if (gameStatus.game_status == 1) {
     throw new Error("Game has already started");
@@ -158,42 +158,52 @@ async function startGame(gameId) {
 
 async function getGameState(gameId) {
   //Get the game and its players from the database
-  const gameQuery = `SELECT * FROM game WHERE game_id = $1`;
+  const gameQuery = `SELECT * FROM game WHERE game_ID = $1`;
   const game = await db.one(gameQuery, [gameId]);
   if (!game) {
     throw new Error("Game does not exist");
   }
-  const playersQuery = `SELECT * FROM current_players WHERE game_id = $1`;
+  const playersQuery = `SELECT * FROM current_players WHERE game_ID = $1`;
   const players = await db.any(playersQuery, [gameId]);
 
   //Get the current turn
   const currentTurn = game.current_turn;
 
+  //Get the game status
+  const gameStatus = game.game_status;
+
   //Get the pawns from the database and construct the board
-  const pawnsQuery = `SELECT * FROM pawns WHERE current_player_id IN (SELECT current_player_id FROM current_players WHERE game_id = $1)`;
+  const pawnsQuery = `SELECT * FROM pawns WHERE current_player_ID IN (SELECT current_player_ID FROM current_players WHERE game_ID = $1)`;
   const pawns = await db.any(pawnsQuery, [gameId]);
 
-  // Create a map of current_player_id to color
+  // Create a map of current_player_ID to color
   const currentPlayerIdToColor = new Map(
-    players.map((player) => [player.current_player_id, player.color])
+    players.map((player) => [player.current_player_ID, player.color])
   );
 
   const board = new Board();
   board.initializeFromPawns(pawns, currentPlayerIdToColor);
 
   // Get the cards from the database and construct the Deck object
-  const cards = await db.any("SELECT * FROM cards WHERE game_id=$1", [gameId]);
+  const cards = await db.any("SELECT * FROM cards WHERE game_ID=$1", [gameId]);
   const deck = new Deck();
   deck.initializeFromCards(cards);
 
+  // Construct serilized pawn and card lists
+  const pawnList = board.getPawns();
+  const cardList = deck.getCards();
+
   // Construct the game state object
   const gameState = {
-    game_id: gameId,
+    game_ID: gameId,
+    game_status: gameStatus,
     currentPlayerIdToColor,
     currentTurn,
     players,
     board,
     deck,
+    pawnList,
+    cardList,
   };
 
   return gameState;
@@ -201,38 +211,39 @@ async function getGameState(gameId) {
 
 async function updateGameState(gameState) {
   // Update the game table
-  const updateGameQuery = `UPDATE game SET current_turn = $1, active_card = $2 WHERE game_id = $3`;
+  const updateGameQuery = `UPDATE game SET current_turn = $1, active_card = $2 WHERE game_ID = $3`;
   await db.none(updateGameQuery, [
     gameState.currentTurn,
     gameState.deck.activeCard,
-    gameState.game_id,
+    gameState.game_ID,
   ]);
 
   // Delete the existing pawns in the database
-  const deletePawnsQuery = `DELETE FROM pawns WHERE current_player_id IN (SELECT current_player_id FROM current_players WHERE game_id = $1)`;
-  await db.none(deletePawnsQuery, [gameState.game_id]);
+  const deletePawnsQuery = `DELETE FROM pawns WHERE current_player_ID IN (SELECT current_player_ID FROM current_players WHERE game_ID = $1)`;
+  await db.none(deletePawnsQuery, [gameState.game_ID]);
 
   // Insert updated pawns into the database
   const insertPawnQuery =
-    "INSERT INTO pawns (current_player_id, zone, position) VALUES ($1, $2, $3)";
+    "INSERT INTO pawns (current_player_ID, zone, position) VALUES ($1, $2, $3)";
   for (const pawn of gameState.board.getPawns()) {
-    await db.none(insertPawnQuery, [
-      pawn.currentPlayerId,
-      pawn.zone,
-      pawn.position,
-    ]);
+    // Get currentPlayerId corresponding to pawn color
+    const currentPlayerId = [...gameState.currentPlayerIdToColor].find(
+      ([id, color]) => color === pawn.color
+    )[0];
+
+    await db.none(insertPawnQuery, [currentPlayerId, pawn.zone, pawn.position]);
   }
 
   // Delete all cards associated with the game
-  const deleteCardsQuery = `DELETE FROM card WHERE game_id = $1`;
-  await db.none(deleteCardsQuery, [gameState.game_id]);
+  const deleteCardsQuery = `DELETE FROM card WHERE game_ID = $1`;
+  await db.none(deleteCardsQuery, [gameState.game_ID]);
 
   // Insert the updated card information
   const cards = gameState.deck.getCards();
   for (const card of cards) {
     const insertCardQuery =
-      "INSERT INTO card (game_id, card_type, is_used) VALUES ($1, $2, $3)";
-    await db.none(insertCardQuery, [gameState.game_id, card.type, card.isUsed]);
+      "INSERT INTO card (game_ID, card_type, is_used) VALUES ($1, $2, $3)";
+    await db.none(insertCardQuery, [gameState.game_ID, card.type, card.isUsed]);
   }
 }
 
@@ -242,7 +253,7 @@ async function drawCard(gameId, playerId) {
 
   // Check if it is the current player's turn
   const currentPlayer = gameState.currentPlayers.find(
-    (player) => player.player_id === playerId
+    (player) => player.player_ID === playerId
   );
   const turnColors = {
     1: "red",
@@ -285,7 +296,7 @@ async function moveOutOfStart(gameId, playerId, start) {
 
   // Check if it is the current player's turn
   const currentPlayer = gameState.currentPlayers.find(
-    (player) => player.player_id === playerId
+    (player) => player.player_ID === playerId
   );
   const turnColors = {
     1: "red",
@@ -361,7 +372,7 @@ async function movePawn(gameId, playerId, move) {
 
   // Check if it is the current player's turn
   const currentPlayer = gameState.currentPlayers.find(
-    (player) => player.player_id === playerId
+    (player) => player.player_ID === playerId
   );
   const turnColors = {
     1: "red",
@@ -477,7 +488,7 @@ async function swapPawns(gameId, playerId, swap) {
 
   // Check if it is the current player's turn
   const currentPlayer = gameState.currentPlayers.find(
-    (player) => player.player_id === playerId
+    (player) => player.player_ID === playerId
   );
   const turnColors = {
     1: "red",
@@ -569,7 +580,7 @@ async function playSorryCard(gameId, playerId, action) {
 
   // Check if it is the current player's turn
   const currentPlayer = gameState.currentPlayers.find(
-    (player) => player.player_id === playerId
+    (player) => player.player_ID === playerId
   );
   const turnColors = {
     1: "red",
