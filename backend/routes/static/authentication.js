@@ -18,6 +18,10 @@ router.post("/register", async (request, response) => {
 
   try {
     const { id } = await Users.create(username, hash);
+    request.session.user = {
+      id,
+      username,
+    };
 
     response.redirect("/lobby");
   } catch (error) {
@@ -34,10 +38,18 @@ router.post("/login", async (request, response) => {
   const { username, password } = request.body;
 
   try {
-    const { password: hash } = await Users.findByUsername(username);
+    const {
+      id: userId,
+      username: foundUsername,
+      password: hash,
+    } = await Users.findByUsername(username);
     const isValidUser = await bcrypt.compare(password, hash);
 
     if (isValidUser) {
+      request.session.user = {
+        id: userId,
+        username: foundUsername,
+      };
       response.redirect("/lobby");
     } else {
       throw "Credentials invalid";
@@ -49,6 +61,10 @@ router.post("/login", async (request, response) => {
 });
 
 router.get("/logout", (request, response) => {
+  request.session.destroy((error) => {
+    console.log({ error });
+  });
+
   response.redirect("/");
 });
 
