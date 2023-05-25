@@ -84,7 +84,13 @@ function gameUpdatedHandler(socket, game_id) {
     //Disable the start game button if the game has started
     const startGameButton = document.getElementById("start-game-button");
     if (state.game_status === 1) {
-      startGameButton.disabled = true;
+      startGameButton.hidden = "true";
+    }
+
+    //Disable the draw card button if there is an active card
+    const drawCardButton = document.getElementById("draw-card-button");
+    if (state.deck.activeCard !== "none") {
+      drawCardButton.hidden = "true";
     }
 
     //Render the board based on the game state
@@ -176,8 +182,8 @@ function initializeBoard(game_id) {
   //testmove(game_id);
 
   fetchState(game_id);
-
   let drawcardbutton = document.getElementById("draw-card-button");
+  console.log("drawcardbutton " + drawcardbutton);
   if (drawcardbutton) {
     drawcardbutton.addEventListener("click", async () => {
       const response = await fetch(`/api/games/${game_id}/draw`, {
@@ -198,6 +204,7 @@ function initializeBoard(game_id) {
   }
 
   let startgamebutton = document.getElementById("start-game-button");
+  console.log("startgamebutton " + startgamebutton);
   if (startgamebutton) {
     startgamebutton.addEventListener("click", async () => {
       const response = await fetch(`/api/games/${game_id}/start`, {
@@ -208,8 +215,22 @@ function initializeBoard(game_id) {
       });
     });
   }
-}
 
-gameCreatedHandler(socket);
-gameUpdatedHandler(socket, game_id);
-initializeBoard(game_id);
+  let skipturnbutton = document.getElementById("skip-turn-button");
+  console.log("skipturnbutton " + skipturnbutton);
+  if (skipturnbutton) {
+    skipturnbutton.addEventListener("click", async () => {
+      const response = await fetch(`/api/games/${game_id}/skip`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    });
+  }
+}
+document.addEventListener("DOMContentLoaded", (event) => {
+  gameCreatedHandler(socket);
+  gameUpdatedHandler(socket, game_id);
+  initializeBoard(game_id);
+});
