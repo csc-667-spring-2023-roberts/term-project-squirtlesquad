@@ -5,10 +5,7 @@
  */
 exports.up = (pgm) => {
   pgm.createTable("card", {
-    card_ID: {
-      type: "integer",
-      notNull: true,
-    },
+    id: "id",
     game_ID: {
       type: "integer",
       notNull: true,

@@ -12,9 +12,9 @@ async function createNewGame(hostId, gameTitle) {
 
   // Create a new game in the database
   const createGameQuery =
-    "INSERT INTO game (game_name, game_status) VALUES ($1, $2) RETURNING game_ID";
-  const gameResult = await db.one(createGameQuery, [gameTitle, 0]);
-  const gameId = gameResult.game_ID;
+    "INSERT INTO game (game_name, game_status, current_turn, active_card) VALUES ($1, $2, $3, $4) RETURNING id";
+  const gameResult = await db.one(createGameQuery, [gameTitle, 0, 1, "none"]);
+  const gameId = gameResult.id;
 
   // Associate the host with the new game
   // const hostQuery = "INSERT INTO player (player_id, game_id) VALUES ($1, $2)";
@@ -29,21 +29,24 @@ async function createNewGame(hostId, gameTitle) {
 async function storeInitialState(gameId, hostId, board, deck) {
   // Insert a new row in the current_players table for the host
   const insertCurrentPlayerQuery =
-    "INSERT INTO current_players (game_ID, player_ID, player_color) VALUES ($1, $2, $3) RETURNING current_player_ID";
+    'INSERT INTO current_players ("game_ID", "player_ID", player_color, score) VALUES ($1, $2, $3, $4) RETURNING id';
   const currentPlayerResult = await db.one(insertCurrentPlayerQuery, [
     gameId,
     hostId,
     "red",
+    "0",
   ]);
-  const currentHostPlayerId = currentPlayerResult.current_player_ID;
+  const currentHostPlayerId = currentPlayerResult.id;
 
   // Insert the initial state of the board/pawns into the pawn table
   const pawns = board.getPawns();
-  for (const pawn of pawns) {
+  const hostPawns = pawns.filter((pawn) => pawn.color === "red"); // Only insert the host's pawns
+  for (const pawn of hostPawns) {
     const insertPawnQuery =
-      "INSERT INTO pawns (current_player_ID, zone, position) VALUES ($1, $2, $3)";
+      'INSERT INTO pawns ("player_ID", "game_ID", zone, position) VALUES ($1, $2, $3, $4)';
     await db.none(insertPawnQuery, [
       currentHostPlayerId,
+      gameId,
       pawn.zone,
       pawn.position,
     ]);
@@ -53,19 +56,19 @@ async function storeInitialState(gameId, hostId, board, deck) {
   const cards = deck.getCards();
   for (const card of cards) {
     const insertCardQuery =
-      "INSERT INTO card (game_ID, card_type, is_used) VALUES ($1, $2, $3)";
+      'INSERT INTO card ("game_ID", card_type, is_used) VALUES ($1, $2, $3)';
     await db.none(insertCardQuery, [gameId, card.type, card.isUsed]);
   }
 }
 
 async function listJoinableGames(playerId) {
   const joinableGamesQuery = `
-    SELECT g.game_ID, COUNT(cp.player_ID) AS current_players
+    SELECT g.id, COUNT(cp.\"player_ID\") AS current_players
     FROM game g
-    LEFT JOIN current_players cp ON g.game_ID = cp.game_ID
+    LEFT JOIN current_players cp ON g.id = cp.\"game_ID\"
     WHERE g.game_status = 0
-    GROUP BY g.game_ID
-    HAVING COUNT(cp.player_ID) < 4;
+    GROUP BY g.id
+    HAVING COUNT(cp.\"player_ID\") < 4;
   `;
   const joinableGames = await db.any(joinableGamesQuery);
 
@@ -74,10 +77,10 @@ async function listJoinableGames(playerId) {
     const playerExistsQuery = `
       SELECT *
       FROM current_players
-      WHERE game_ID = $1 AND player_ID = $2
+      WHERE \"game_ID\" = $1 AND \"player_ID\" = $2
     `;
     const playerExists = await db.oneOrNone(playerExistsQuery, [
-      game.game_ID,
+      game.id,
       playerId,
     ]);
 
@@ -92,17 +95,17 @@ async function joinGame(gameId, playerId) {
   // Order of player colors
   const playerColors = ["red", "blue", "yellow", "green"];
 
-  const joinGameQuery = `INSERT INTO current_players (game_ID, player_ID, player_color) VALUES ($1, $2, $3)`;
+  const joinGameQuery = `INSERT INTO current_players (\"game_ID\", \"player_ID\", player_color, score) VALUES ($1, $2, $3, $4)`;
 
   // Check if the game exists
-  const gameExistsQuery = `SELECT * FROM game WHERE game_ID = $1`;
+  const gameExistsQuery = `SELECT * FROM game WHERE id = $1`;
   const gameExists = await db.oneOrNone(gameExistsQuery, [gameId]);
   if (!gameExists) {
     throw new Error("Game does not exist");
   }
 
   // Check if the player is already in the game
-  const playerExistsQuery = `SELECT * FROM current_players WHERE game_ID = $1 AND player_ID = $2`;
+  const playerExistsQuery = `SELECT * FROM current_players WHERE \"game_ID\" = $1 AND \"player_ID\" = $2`;
   const playerExists = await db.oneOrNone(playerExistsQuery, [
     gameId,
     playerId,
@@ -112,7 +115,7 @@ async function joinGame(gameId, playerId) {
   }
 
   // Get the number of current players
-  const playerCountQuery = `SELECT COUNT(*) FROM current_players WHERE game_ID = $1`;
+  const playerCountQuery = `SELECT COUNT(*) FROM current_players WHERE \"game_ID\" = $1`;
   const playerCountResult = await db.one(playerCountQuery, [gameId]);
   const playerCount = playerCountResult.count;
 
@@ -122,28 +125,51 @@ async function joinGame(gameId, playerId) {
   }
 
   // Add the new player to the game with their assigned color
-  await db.none(joinGameQuery, [gameId, playerId, playerColors[playerCount]]);
+  await db.none(joinGameQuery, [
+    gameId,
+    playerId,
+    playerColors[playerCount],
+    "0",
+  ]);
+
+  //Define initial pawn positions
+  const initialPawnPositions = ["0", "1", "2", "3"];
+
+  //Get the id of the newly added current player
+  const currentPlayerIdQuery = `SELECT id FROM current_players WHERE \"game_ID\" = $1 AND \"player_ID\" = $2`;
+  const currentPlayerIdResult = await db.one(currentPlayerIdQuery, [
+    gameId,
+    playerId,
+  ]);
+  const currentPlayerId = currentPlayerIdResult.id;
+
+  //Insert the new player's pawns into the pawn table
+  for (const position of initialPawnPositions) {
+    const insertPawnQuery =
+      'INSERT INTO pawns ("player_ID", "game_ID", zone, position) VALUES ($1, $2, $3, $4)';
+    await db.none(insertPawnQuery, [currentPlayerId, gameId, "home", position]);
+  }
 }
 
 async function startGame(gameId) {
-  const updateGameStatusQuery = `UPDATE game SET game_status = 1 WHERE game_ID = $1`;
+  const updateGameStatusQuery = `UPDATE game SET game_status = 1 WHERE id = $1`;
 
   //Check if the game exists
-  const gameExistsQuery = `SELECT * FROM game WHERE game_ID = $1`;
+  const gameExistsQuery = `SELECT * FROM game WHERE id = $1`;
   const gameExists = await db.oneOrNone(gameExistsQuery, [gameId]);
   if (!gameExists) {
     throw new Error("Game does not exist");
   }
 
   //Check if the game has at least 2 players
-  const playerCountQuery = `SELECT COUNT(*) FROM current_players WHERE game_ID = $1`;
+  const playerCountQuery = `SELECT COUNT(*) FROM current_players WHERE \"game_ID\" = $1`;
   const playerCount = await db.one(playerCountQuery, [gameId]);
   if (playerCount.count < 2) {
     throw new Error("Game does not have enough players");
   }
 
   //Check if the game has not already started
-  const gameStatusQuery = `SELECT game_status FROM game WHERE game_ID = $1`;
+  const gameStatusQuery = `SELECT game_status FROM game WHERE \"game_ID\" = $1`;
   const gameStatus = await db.one(gameStatusQuery, [gameId]);
   if (gameStatus.game_status == 1) {
     throw new Error("Game has already started");
@@ -158,12 +184,12 @@ async function startGame(gameId) {
 
 async function getGameState(gameId) {
   //Get the game and its players from the database
-  const gameQuery = `SELECT * FROM game WHERE game_ID = $1`;
+  const gameQuery = `SELECT * FROM game WHERE id = $1`;
   const game = await db.one(gameQuery, [gameId]);
   if (!game) {
     throw new Error("Game does not exist");
   }
-  const playersQuery = `SELECT * FROM current_players WHERE game_ID = $1`;
+  const playersQuery = `SELECT * FROM current_players WHERE \"game_ID\" = $1`;
   const players = await db.any(playersQuery, [gameId]);
 
   //Get the current turn
@@ -173,21 +199,22 @@ async function getGameState(gameId) {
   const gameStatus = game.game_status;
 
   //Get the pawns from the database and construct the board
-  const pawnsQuery = `SELECT * FROM pawns WHERE current_player_ID IN (SELECT current_player_ID FROM current_players WHERE game_ID = $1)`;
+  const pawnsQuery = `SELECT * FROM pawns WHERE \"player_ID\" IN (SELECT id FROM current_players WHERE \"game_ID\" = $1)`;
   const pawns = await db.any(pawnsQuery, [gameId]);
 
   // Create a map of current_player_ID to color
   const currentPlayerIdToColor = new Map(
-    players.map((player) => [player.current_player_ID, player.color])
+    players.map((player) => [player.id, player.player_color])
   );
 
   const board = new Board();
   board.initializeFromPawns(pawns, currentPlayerIdToColor);
 
   // Get the cards from the database and construct the Deck object
-  const cards = await db.any("SELECT * FROM cards WHERE game_ID=$1", [gameId]);
+  const cards = await db.any('SELECT * FROM card WHERE "game_ID"=$1', [gameId]);
   const deck = new Deck();
   deck.initializeFromCards(cards);
+  deck.activeCard = game.active_card;
 
   // Construct serilized pawn and card lists
   const pawnList = board.getPawns();
@@ -205,13 +232,13 @@ async function getGameState(gameId) {
     pawnList,
     cardList,
   };
-
+  console.log(gameState);
   return gameState;
 }
 
 async function updateGameState(gameState) {
   // Update the game table
-  const updateGameQuery = `UPDATE game SET current_turn = $1, active_card = $2 WHERE game_ID = $3`;
+  const updateGameQuery = `UPDATE game SET current_turn = $1, active_card = $2 WHERE id = $3`;
   await db.none(updateGameQuery, [
     gameState.currentTurn,
     gameState.deck.activeCard,
@@ -219,30 +246,35 @@ async function updateGameState(gameState) {
   ]);
 
   // Delete the existing pawns in the database
-  const deletePawnsQuery = `DELETE FROM pawns WHERE current_player_ID IN (SELECT current_player_ID FROM current_players WHERE game_ID = $1)`;
+  const deletePawnsQuery = `DELETE FROM pawns WHERE \"player_ID\" IN (SELECT id FROM current_players WHERE \"game_ID\" = $1)`;
   await db.none(deletePawnsQuery, [gameState.game_ID]);
 
   // Insert updated pawns into the database
   const insertPawnQuery =
-    "INSERT INTO pawns (current_player_ID, zone, position) VALUES ($1, $2, $3)";
+    'INSERT INTO pawns ("game_ID", "player_ID", zone, position) VALUES ($1, $2, $3, $4)';
   for (const pawn of gameState.board.getPawns()) {
     // Get currentPlayerId corresponding to pawn color
     const currentPlayerId = [...gameState.currentPlayerIdToColor].find(
       ([id, color]) => color === pawn.color
     )[0];
 
-    await db.none(insertPawnQuery, [currentPlayerId, pawn.zone, pawn.position]);
+    await db.none(insertPawnQuery, [
+      gameState.game_ID,
+      currentPlayerId,
+      pawn.zone,
+      pawn.position,
+    ]);
   }
 
   // Delete all cards associated with the game
-  const deleteCardsQuery = `DELETE FROM card WHERE game_ID = $1`;
+  const deleteCardsQuery = `DELETE FROM card WHERE \"game_ID\" = $1`;
   await db.none(deleteCardsQuery, [gameState.game_ID]);
 
   // Insert the updated card information
   const cards = gameState.deck.getCards();
   for (const card of cards) {
     const insertCardQuery =
-      "INSERT INTO card (game_ID, card_type, is_used) VALUES ($1, $2, $3)";
+      'INSERT INTO card ("game_ID", card_type, is_used) VALUES ($1, $2, $3)';
     await db.none(insertCardQuery, [gameState.game_ID, card.type, card.isUsed]);
   }
 }
@@ -252,7 +284,7 @@ async function drawCard(gameId, playerId) {
   const gameState = await getGameState(gameId);
 
   // Check if it is the current player's turn
-  const currentPlayer = gameState.currentPlayers.find(
+  const currentPlayer = gameState.players.find(
     (player) => player.player_ID === playerId
   );
   const turnColors = {
@@ -263,11 +295,6 @@ async function drawCard(gameId, playerId) {
   };
   if (turnColors[gameState.currentTurn] !== currentPlayer.player_color) {
     throw new Error("It is not your turn");
-  }
-
-  // Check if the deck is empty
-  if (gameState.deck.isEmpty()) {
-    throw new Error("The deck is empty");
   }
 
   // Draw a card from the deck
@@ -295,7 +322,7 @@ async function moveOutOfStart(gameId, playerId, start) {
   }
 
   // Check if it is the current player's turn
-  const currentPlayer = gameState.currentPlayers.find(
+  const currentPlayer = gameState.players.find(
     (player) => player.player_ID === playerId
   );
   const turnColors = {
@@ -343,7 +370,7 @@ async function moveOutOfStart(gameId, playerId, start) {
     // If card is not '2', advance the game to the next turn
     if (start.card !== "2") {
       gameState.currentTurn =
-        (gameState.currentTurn % gameState.currentPlayers.length) + 1;
+        (gameState.currentTurn % gameState.players.length) + 1;
     }
 
     //Discard the active card
@@ -371,7 +398,7 @@ async function movePawn(gameId, playerId, move) {
   }
 
   // Check if it is the current player's turn
-  const currentPlayer = gameState.currentPlayers.find(
+  const currentPlayer = gameState.players.find(
     (player) => player.player_ID === playerId
   );
   const turnColors = {
@@ -456,7 +483,7 @@ async function movePawn(gameId, playerId, move) {
     // If card is not '2', advance the game to the next turn
     if (start.card !== "2") {
       gameState.currentTurn =
-        (gameState.currentTurn % gameState.currentPlayers.length) + 1;
+        (gameState.currentTurn % gameState.players.length) + 1;
     }
 
     //Discard the active card
@@ -487,7 +514,7 @@ async function swapPawns(gameId, playerId, swap) {
   }
 
   // Check if it is the current player's turn
-  const currentPlayer = gameState.currentPlayers.find(
+  const currentPlayer = gameState.players.find(
     (player) => player.player_ID === playerId
   );
   const turnColors = {
@@ -552,7 +579,7 @@ async function swapPawns(gameId, playerId, swap) {
 
     //Advance the game to the next turn
     gameState.currentTurn =
-      (gameState.currentTurn % gameState.currentPlayers.length) + 1;
+      (gameState.currentTurn % gameState.players.length) + 1;
 
     //Discard the active card
     gameState.deck.discardCard(gameState.deck.activeCard);
@@ -579,7 +606,7 @@ async function playSorryCard(gameId, playerId, action) {
   }
 
   // Check if it is the current player's turn
-  const currentPlayer = gameState.currentPlayers.find(
+  const currentPlayer = gameState.players.find(
     (player) => player.player_ID === playerId
   );
   const turnColors = {
@@ -620,7 +647,7 @@ async function playSorryCard(gameId, playerId, action) {
 
     //Advance the game to the next turn
     gameState.currentTurn =
-      (gameState.currentTurn % gameState.currentPlayers.length) + 1;
+      (gameState.currentTurn % gameState.players.length) + 1;
 
     //Discard the active card
     gameState.deck.discardCard(gameState.deck.activeCard);

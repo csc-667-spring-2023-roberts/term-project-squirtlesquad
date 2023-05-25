@@ -5,10 +5,7 @@
  */
 exports.up = (pgm) => {
   pgm.createTable("game", {
-    game_ID: {
-      type: "varchar(50)",
-      notNull: true,
-    },
+    id: "id",
     game_name: {
       type: "varchar(45)",
       notNull: false,

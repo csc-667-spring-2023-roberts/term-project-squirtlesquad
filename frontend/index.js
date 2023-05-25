@@ -98,9 +98,45 @@ async function fetchState(game_id) {
   });
 }
 
+async function testdrawcard(game_id) {
+  const response = await fetch(`/api/games/${game_id}/draw`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+}
+async function testmoveoutofstart(game_id) {
+  const response = await fetch(`/api/games/${game_id}/move/start`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      pawn: { color: "red", zone: "start", position: 0 },
+      card: "1",
+      target: { position: 4, zone: "board" },
+    }),
+  });
+}
+async function testmove(game_id) {
+  const response = await fetch(`/api/games/${game_id}/move/board`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      pawn: { color: "red", zone: "board", position: 4 },
+      card: "8",
+      target: { position: 12, zone: "board" },
+    }),
+  });
+}
+
 function initializeBoard(game_id) {
-  //Fetch the game state
-  fetchState(game_id);
+  //testdrawcard(game_id);
+  testmoveoutofstart(game_id);
+  //testmove(game_id);
 
   document
     .getElementById("draw-card-button")
