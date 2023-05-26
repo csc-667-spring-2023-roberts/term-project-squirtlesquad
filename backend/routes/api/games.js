@@ -159,4 +159,20 @@ router.post("/:id/state", async (req, res) => {
   }
 });
 
+router.post("/:id/skip", async (req, res) => {
+  const { id: user_id } = req.session.user;
+  const { id: game_id } = req.params;
+  const io = req.app.get("io");
+
+  try {
+    await Games.skipTurn(game_id, user_id);
+    const gamestate = await Games.getGameState(game_id);
+    io.emit(GAME_UPDATED(game_id), gamestate);
+    res.status(200).send();
+  } catch (err) {
+    console.error(err);
+    res.status(500).send();
+  }
+});
+
 module.exports = router;

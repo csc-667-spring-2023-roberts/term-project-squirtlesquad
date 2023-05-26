@@ -659,6 +659,35 @@ async function playSorryCard(gameId, playerId, action) {
   }
 }
 
+async function skipTurn(gameId, playerId) {
+  // Retrieve the game state from the database
+  const gameState = await getGameState(gameId);
+
+  // Check if it is the current player's turn
+  const currentPlayer = gameState.players.find(
+    (player) => player.player_ID === playerId
+  );
+  const turnColors = {
+    1: "red",
+    2: "blue",
+    3: "yellow",
+    4: "green",
+  };
+  if (turnColors[gameState.currentTurn] !== currentPlayer.player_color) {
+    throw new Error("It is not your turn");
+  }
+
+  //Advance the game to the next turn
+  gameState.currentTurn =
+    (gameState.currentTurn % gameState.players.length) + 1;
+
+  //Discard the active card
+  gameState.deck.discardCard(gameState.deck.activeCard);
+
+  //Update the game state in the database
+  await updateGameState(gameState);
+}
+
 module.exports = {
   createNewGame,
   getGameState,
@@ -671,4 +700,5 @@ module.exports = {
   moveTwoPawns,
   swapPawns,
   playSorryCard,
+  skipTurn,
 };
